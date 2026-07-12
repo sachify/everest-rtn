@@ -15,7 +15,6 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- LOGIN SCREEN -->
     <div id="loginSection" class="flex-1 flex items-center justify-center p-4">
         <div class="w-full max-w-md card rounded-xl p-8 shadow-2xl">
             <h2 class="text-xl font-bold text-center text-white mb-6">Everest Hardware Secure Login</h2>
@@ -28,9 +27,7 @@
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
     <div id="dashboardSection" class="hidden flex-1 flex flex-col">
-        <!-- Top Nav -->
         <nav class="bg-[#161b22] border-b border-[#30363d] px-6 py-4 flex justify-between items-center">
             <h1 class="text-lg font-bold text-white">Everest Hardware Co. (Pvt) Ltd.</h1>
             <button id="logoutBtn" class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1 rounded-lg text-xs">Log Out</button>
@@ -38,16 +35,14 @@
 
         <main class="p-6 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Left Side Control Inputs Panel -->
             <div class="space-y-6 lg:col-span-1">
-                <!-- Tab Controls Buttons -->
-                <div class="card p-1 rounded-xl flex gap-1">
-                    <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-medium">New Return</button>
-                    <button id="tabPayBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium">Add Payment</button>
-                    <button id="tabMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium hidden">Admin Masters</button>
+                <div class="card p-1 rounded-xl flex flex-wrap gap-1">
+                    <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-medium min-w-[80px]">New Return</button>
+                    <button id="tabPayBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium min-w-[80px]">Add Payment</button>
+                    <button id="tabReportBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium min-w-[80px]"><i class="fa-solid fa-chart-line"></i> Reports</button>
+                    <button id="tabMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium hidden min-w-[80px]">Admin Masters</button>
                 </div>
 
-                <!-- Form 1: Add New Return Cheque -->
                 <div id="formNewBlock" class="card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">New Return Cheque Entry</h3>
                     <form id="chequeForm" class="space-y-3 text-xs">
@@ -76,7 +71,6 @@
                     </form>
                 </div>
 
-                <!-- Form 2: Add Payment -->
                 <div id="formPayBlock" class="hidden card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment</h3>
                     <form id="paymentForm" class="space-y-3 text-xs">
@@ -98,19 +92,18 @@
                     </form>
                 </div>
 
-                <!-- Form 3: Admin Master Management Block -->
                 <div id="formMasterBlock" class="hidden card rounded-xl p-5 space-y-4 border border-purple-900/40 bg-purple-950/5">
                     <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-folder-plus"></i> Add Manager / Rep Master</h3>
                     <div class="space-y-3 text-xs">
                         <div>
                             <label class="block text-gray-400 mb-1">මොකක්ද එකතු කරන්නේ?</label>
                             <select id="masterTypeSelector" class="w-full p-2 rounded-lg">
-                                <option value="Manager">New Area Manager (කලාපීය කළමනාකරු)</option>
-                                <option value="Rep">New Sales Rep (අලෙවි නියෝජිත)</option>
+                                <option value="Manager">New Area Manager</option>
+                                <option value="Rep">New Sales Rep</option>
                             </select>
                         </div>
                         <div id="masterParentBlock" class="hidden">
-                            <label class="block text-gray-400 mb-1">මෙම Rep අයිති කාටද? (Select Target Manager)</label>
+                            <label class="block text-gray-400 mb-1">මෙම Rep අයිති කාටද?</label>
                             <select id="masterParentManager" class="w-full p-2 rounded-lg"></select>
                         </div>
                         <div>
@@ -122,9 +115,9 @@
                 </div>
             </div>
 
-            <!-- Right Side Table View Area -->
-            <div class="lg:col-span-2 space-y-4">
-                <div class="card p-5 rounded-xl">
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div id="registryTableBlock" class="card p-5 rounded-xl">
                     <h3 class="text-sm font-bold text-gray-300 mb-4">Return Cheques & Balances Registry</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
@@ -140,46 +133,125 @@
                         </table>
                     </div>
                 </div>
+
+                <div id="reportsInterfaceBlock" class="hidden space-y-6">
+                    
+                    <div class="card p-5 rounded-xl">
+                        <h3 class="text-sm font-bold text-blue-400 mb-3"><i class="fa-solid fa-hourglass-half"></i> 1. Cheque Ageing Summary (දින අනුව හිඟ මුදල් වාර්තාව)</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                            <div class="bg-gray-900/50 p-3 rounded-lg border border-gray-800">
+                                <div class="text-xs text-gray-400">0 - 30 Days</div>
+                                <div id="ageing0_30" class="text-sm font-bold text-white mt-1">රු. 0</div>
+                            </div>
+                            <div class="bg-gray-900/50 p-3 rounded-lg border border-gray-800">
+                                <div class="text-xs text-amber-400/80">31 - 60 Days</div>
+                                <div id="ageing31_60" class="text-sm font-bold text-amber-400 mt-1">රු. 0</div>
+                            </div>
+                            <div class="bg-gray-900/50 p-3 rounded-lg border border-gray-800">
+                                <div class="text-xs text-orange-400/80">61 - 90 Days</div>
+                                <div id="ageing61_90" class="text-sm font-bold text-orange-400 mt-1">රු. 0</div>
+                            </div>
+                            <div class="bg-gray-900/50 p-3 rounded-lg border border-gray-800">
+                                <div class="text-xs text-red-400/80">90+ Overdue</div>
+                                <div id="ageing90_plus" class="text-sm font-bold text-red-400 mt-1">රු. 0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-5 rounded-xl">
+                        <h3 class="text-sm font-bold text-emerald-400 mb-3"><i class="fa-solid fa-users"></i> 2. Manager / Rep Outstanding Summary (Total Balance Summary)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-gray-800 text-gray-400">
+                                        <th class="p-2">Manager Name</th>
+                                        <th class="p-2">Rep Name</th>
+                                        <th class="p-2 text-right">Outstanding Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="repSummaryTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card p-5 rounded-xl">
+                        <h3 class="text-sm font-bold text-purple-400 mb-3"><i class="fa-solid fa-receipt"></i> 3. Recent Payment Collection Log (මෑතකදී ලැබුණු මුදල් එකතු කිරීම්)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-gray-800 text-gray-400">
+                                        <th class="p-2">Received Date</th>
+                                        <th class="p-2">Chq No / Customer</th>
+                                        <th class="p-2">Method / Ref</th>
+                                        <th class="p-2 text-right">Collected Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentHistoryTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
-    <!-- JS ENGINE LOGIC -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyC2fRs3bfw0XHs2bhdkgW5WxVMt5oBzdrA4P15H3pJziwV6J5sASmYo0vFMjjnxNUb/exec"; // <- ඔබගේ Apps Script Web App URL එක මෙතනට දමන්න.
+        const API_URL = "https://script.google.com/macros/s/AKfycbyC2fRs3bfw0XHs2bhdkgW5WxVMt5oBzdrA4P15H3pJziwV6J5sASmYo0vFMjjnxNUb/exec";
         let currentSession = null;
         let globalCheques = [];
         let globalMasters = [];
 
-        // Tab Event Toggles
+        // Tab Navigation Document Bindings
         const tabNewBtn = document.getElementById('tabNewBtn');
         const tabPayBtn = document.getElementById('tabPayBtn');
+        const tabReportBtn = document.getElementById('tabReportBtn');
         const tabMasterBtn = document.getElementById('tabMasterBtn');
+        
         const formNewBlock = document.getElementById('formNewBlock');
         const formPayBlock = document.getElementById('formPayBlock');
         const formMasterBlock = document.getElementById('formMasterBlock');
+        
+        const registryTableBlock = document.getElementById('registryTableBlock');
+        const reportsInterfaceBlock = document.getElementById('reportsInterfaceBlock');
 
-        tabNewBtn.addEventListener('click', () => { setTabActive(formNewBlock, tabNewBtn, 'bg-blue-600'); });
-        tabPayBtn.addEventListener('click', () => { setTabActive(formPayBlock, tabPayBtn, 'bg-emerald-600'); });
-        tabMasterBtn.addEventListener('click', () => { setTabActive(formMasterBlock, tabMasterBtn, 'bg-purple-600'); });
+        tabNewBtn.addEventListener('click', () => { setTabActive(formNewBlock, tabNewBtn, 'bg-blue-600', false); });
+        tabPayBtn.addEventListener('click', () => { setTabActive(formPayBlock, tabPayBtn, 'bg-emerald-600', false); });
+        tabMasterBtn.addEventListener('click', () => { setTabActive(formMasterBlock, tabMasterBtn, 'bg-purple-600', false); });
+        
+        // Report Tab Event Listener
+        tabReportBtn.addEventListener('click', () => { 
+            setTabActive(null, tabReportBtn, 'bg-cyan-600', true); 
+            calculateAndRenderReports();
+        });
 
-        function setTabActive(activeBlock, activeTab, activeClass) {
+        function setTabActive(activeBlock, activeTab, activeClass, isReportMode) {
+            // Hide all input forms
             [formNewBlock, formPayBlock, formMasterBlock].forEach(b => b.classList.add('hidden'));
-            [tabNewBtn, tabPayBtn, tabMasterBtn].forEach(t => { 
-                t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"; 
+            // Reset all tab active styles
+            [tabNewBtn, tabPayBtn, tabReportBtn, tabMasterBtn].forEach(t => { 
+                t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium min-w-[80px]"; 
             });
-            activeBlock.classList.remove('hidden');
-            activeTab.className = `flex-1 ${activeClass} text-white py-2 rounded-lg text-xs font-medium`;
+            
+            // Set active class style layout
+            activeTab.className = `flex-1 ${activeClass} text-white py-2 rounded-lg text-xs font-medium min-w-[80px]`;
+            
+            if(isReportMode) {
+                activeTab.className = `flex-1 bg-cyan-600 text-white py-2 rounded-lg text-xs font-medium min-w-[80px]`;
+                registryTableBlock.classList.add('hidden');
+                reportsInterfaceBlock.classList.remove('hidden');
+            } else {
+                activeBlock.classList.remove('hidden');
+                registryTableBlock.classList.remove('hidden');
+                reportsInterfaceBlock.classList.add('hidden');
+            }
         }
 
-        // Master UI Dropdown Toggles
+        // Master Selector Toggle Switch Panels
         document.getElementById('masterTypeSelector').addEventListener('change', (e) => {
             const parentBlock = document.getElementById('masterParentBlock');
-            if(e.target.value === 'Rep') {
-                parentBlock.classList.remove('hidden');
-            } else {
-                parentBlock.classList.add('hidden');
-            }
+            if(e.target.value === 'Rep') { parentBlock.classList.remove('hidden'); } 
+            else { parentBlock.classList.add('hidden'); }
         });
 
         // Cascading Dropdown Logic Execution (Manager -> Rep Filtering)
@@ -189,14 +261,12 @@
             repSelect.innerHTML = `<option value="">Select Rep</option>`;
             
             const filteredReps = globalMasters.filter(m => m.type === 'Rep' && m.parent === selectedManager);
-            
             if(filteredReps.length === 0) {
                 repSelect.innerHTML = `<option value="">-- No Reps Found under this Manager --</option>`;
             } else {
                 filteredReps.forEach(rep => {
                     const opt = document.createElement('option');
-                    opt.value = rep.value;
-                    opt.innerText = rep.value;
+                    opt.value = rep.value; opt.innerText = rep.value;
                     repSelect.appendChild(opt);
                 });
             }
@@ -212,7 +282,7 @@
             tabMasterBtn.classList.add('hidden');
         });
 
-        // Login System Authentication
+        // Login System Authentication Pipeline
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             document.getElementById('loginError').classList.add('hidden');
@@ -235,7 +305,7 @@
             }
         });
 
-        // Load & Fetch Data Engine Data Stream
+        // Load & Fetch Data Engine Data Stream Matrix
         async function fetchDataEngine() {
             try {
                 const res = await fetch(API_URL);
@@ -246,8 +316,13 @@
                 renderChequeTable(globalCheques);
                 rebuildMasterDropdownLists(globalMasters);
                 rebuildTargetChequeSelect(globalCheques);
+                
+                // Real-time update logic refresh loops if viewing active analytics summary metrics
+                if(!reportsInterfaceBlock.classList.contains('hidden')) {
+                    calculateAndRenderReports();
+                }
             } catch (err) {
-                console.error("Error fetching data:", err);
+                console.error("Error fetching data Matrix:", err);
             }
         }
 
@@ -279,7 +354,7 @@
             });
         }
 
-        // Form Submit: Add New Return Cheque
+        // Form Submit Actions Block: Add New Return Cheque Entry Row
         document.getElementById('chequeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
@@ -300,7 +375,7 @@
             fetchDataEngine();
         });
 
-        // Form Submit: Add Payment Log
+        // Form Submit Actions Block: Add New Customer Transaction Installment Log
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
@@ -319,7 +394,7 @@
             fetchDataEngine();
         });
 
-        // Click Action Click handling for master entries
+        // Click Save Action Event Handling Interface for Administration Master Directories
         document.getElementById('saveMasterBtn').addEventListener('click', async () => {
             const type = document.getElementById('masterTypeSelector').value;
             const value = document.getElementById('masterNameInput').value.trim();
@@ -355,6 +430,101 @@
                 `;
                 body.appendChild(tr);
             });
+        }
+
+        // ==========================================
+        // DYNAMIC ANALYTICS & ADVANCED REPORTS ENGINE
+        // ==========================================
+        function calculateAndRenderReports() {
+            let ageing = { zero_30: 0, thirty1_60: 0, sixty1_90: 0, ninety_plus: 0 };
+            let repSummary = {};
+            let paymentHistoryList = [];
+
+            const today = new Date();
+
+            globalCheques.forEach(c => {
+                // Compile Payment History Feed array lists
+                if(c.history && c.history.length > 0) {
+                    c.history.forEach(p => {
+                        paymentHistoryList.push({
+                            date: p.date ? new Date(p.date) : new Date(),
+                            chq_no: c.chq_no,
+                            customer: c.customer,
+                            method: p.method,
+                            ref: p.ref,
+                            amount: p.amount
+                        });
+                    });
+                }
+
+                // If fully settled balance, skip inclusion in outstanding metrics calculations
+                if(c.balance <= 0) return;
+
+                // 1. Calculate Ageing Metric Windows based on Cheque Registry Records Date Input
+                const chequeDate = c.chq_date ? new Date(c.chq_date) : new Date();
+                const diffTime = Math.abs(today - chequeDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if(diffDays <= 30) ageing.zero_30 += c.balance;
+                else if(diffDays <= 60) ageing.thirty1_60 += c.balance;
+                else if(diffDays <= 90) ageing.sixty1_90 += c.balance;
+                else ageing.ninety_plus += c.balance;
+
+                // 2. Aggregate Manager & Sales Rep Outstanding Ledger Indexes
+                const key = `${c.manager || 'Unknown'}||${c.rep || 'Unknown'}`;
+                if(!repSummary[key]) repSummary[key] = 0;
+                repSummary[key] += c.balance;
+            });
+
+            // UI Render Block 1: Cheque Ageing Cards
+            document.getElementById('ageing0_30').innerText = `රු. ${ageing.zero_30.toLocaleString()}`;
+            document.getElementById('ageing31_60').innerText = `රු. ${ageing.thirty1_60.toLocaleString()}`;
+            document.getElementById('ageing61_90').innerText = `රු. ${ageing.sixty1_90.toLocaleString()}`;
+            document.getElementById('ageing90_plus').innerText = `රු. ${ageing.ninety_plus.toLocaleString()}`;
+
+            // UI Render Block 2: Manager & Rep Total Balances Summary Table Grid
+            const repTableBody = document.getElementById('repSummaryTableBody');
+            repTableBody.innerHTML = "";
+            const sortedRepKeys = Object.keys(repSummary).sort((a, b) => repSummary[b] - repSummary[a]);
+            
+            if(sortedRepKeys.length === 0) {
+                repTableBody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-gray-500">හිඟ මුදල් වාර්තා කිසිවක් නැත.</td></tr>`;
+            } else {
+                sortedRepKeys.forEach(k => {
+                    const parts = k.split('||');
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-[#30363d] hover:bg-gray-800/30";
+                    tr.innerHTML = `
+                        <td class="p-2 font-medium text-white">${parts[0]}</td>
+                        <td class="p-2 text-gray-300">${parts[1]}</td>
+                        <td class="p-2 text-right font-semibold text-orange-400">රු. ${repSummary[k].toLocaleString()}</td>
+                    `;
+                    repTableBody.appendChild(tr);
+                });
+            }
+
+            // UI Render Block 3: Payment Logs Collection Audit History Chronological Feed
+            const payTableBody = document.getElementById('paymentHistoryTableBody');
+            payTableBody.innerHTML = "";
+            // Sort payments by date decreasing (Recent First)
+            paymentHistoryList.sort((a, b) => b.date - a.date);
+
+            if(paymentHistoryList.length === 0) {
+                payTableBody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-500">ලැබුණු ගෙවීම් වාර්තා කිසිවක් නැත.</td></tr>`;
+            } else {
+                paymentHistoryList.slice(0, 15).forEach(p => { // Show max recent 15 lines rows
+                    const formattedDate = p.date.toISOString().split('T')[0];
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-[#30363d] hover:bg-gray-800/30";
+                    tr.innerHTML = `
+                        <td class="p-2 font-mono text-gray-400">${formattedDate}</td>
+                        <td class="p-2"><span class="text-white font-medium">${p.chq_no}</span> <span class="text-gray-400">(${p.customer})</span></td>
+                        <td class="p-2 text-gray-300">${p.method} - <span class="font-mono text-xs">${p.ref}</span></td>
+                        <td class="p-2 text-right font-bold text-emerald-400">රු. ${p.amount.toLocaleString()}</td>
+                    `;
+                    payTableBody.appendChild(tr);
+                });
+            }
         }
     </script>
 </body>
