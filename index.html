@@ -3,652 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Return Cheque Management System - Everest Hardware</title>
+    <title>Everest Hardware - Return Cheque Network</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #161b22;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #30363d;
-            border-radius: 3px;
-        }
-        @media print {
-            body { background: white; color: black; }
-            .no-print { display: none !important; }
-            .print-area { display: block !important; width: 100%; }
-            .card { border: 1px solid #000; background: transparent; color: black; }
-        }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; }
+        .card { background-color: #161b22; border: 1px solid #30363d; }
+        input, select { background-color: #0d1117; border: 1px solid #30363d; color: #e6edf3; }
+        input:focus, select:focus { border-color: #58a6ff; outline: none; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased">
+<body class="min-h-screen flex flex-col">
 
+    <!-- LOGIN SCREEN (කලින් කේතයම වේ...) -->
     <div id="loginSection" class="flex-1 flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl p-8">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-900/50 border border-blue-500 text-blue-400 text-2xl mb-3">
-                    <i class="fa-solid fa-building-shield"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-white tracking-tight">Everest Hardware</h2>
-                <p class="text-sm text-gray-400 mt-1">Return Cheque System Login</p>
-            </div>
-            
+        <!-- Login Form Core Content -->
+        <div class="w-full max-w-md card rounded-xl p-8 shadow-2xl">
+            <h2 class="text-xl font-bold text-center text-white mb-6">Everest Hardware Secure Login</h2>
             <form id="loginForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Username</label>
-                    <input type="text" id="username" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2.5 text-white focus:border-blue-500 focus:outline-none text-sm" placeholder="Enter username" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Password</label>
-                    <input type="password" id="password" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2.5 text-white focus:border-blue-500 focus:outline-none text-sm" placeholder="••••••••" required>
-                </div>
-                <div id="loginError" class="text-red-400 text-xs hidden flex items-center gap-1.5 bg-red-950/30 border border-red-900/50 p-2.5 rounded-lg">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span id="loginErrorMsg">වැරදි පරිශීලක නාමයක් හෝ මුද්‍රාවක්!</span>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-200 text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
-                    <i class="fa-solid fa-right-to-bracket"></i> Log In Securely
-                </button>
+                <input type="text" id="username" class="w-full p-2.5 rounded-lg" placeholder="Username" required>
+                <input type="password" id="password" class="w-full p-2.5 rounded-lg" placeholder="Password" required>
+                <div id="loginError" class="text-red-400 text-xs hidden">වැරදි දත්තයකි!</div>
+                <button type="submit" class="w-full bg-blue-600 p-2.5 rounded-lg font-medium text-white">Log In</button>
             </form>
         </div>
     </div>
 
+    <!-- MAIN DASHBOARD -->
     <div id="dashboardSection" class="hidden flex-1 flex flex-col">
-        <nav class="no-print bg-[#161b22] border-b border-[#30363d] px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-50">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 text-white p-2 rounded-lg text-lg font-bold">EH</div>
-                <div>
-                    <h1 class="text-lg font-bold text-white leading-tight">Everest Hardware Co. (Pvt) Ltd.</h1>
-                    <p class="text-xs text-blue-400 flex items-center gap-1"><i class="fa-solid fa-circle-check text-[8px] text-emerald-400 animate-pulse"></i> Return Cheque Control Network</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="text-right">
-                    <div id="userBadge" class="text-sm font-semibold text-gray-200">User: -</div>
-                    <div id="roleBadge" class="text-xs text-gray-400 capitalize bg-[#30363d] px-2 py-0.5 rounded mt-0.5 inline-block">-</div>
-                </div>
-                <button id="logoutBtn" class="bg-[#21262d] hover:bg-[#30363d] text-gray-300 hover:text-white p-2.5 rounded-lg border border-[#30363d] transition">
-                    <i class="fa-solid fa-power-off text-red-400"></i>
-                </button>
-            </div>
+        <!-- Top Nav -->
+        <nav class="bg-[#161b22] border-b border-[#30363d] px-6 py-4 flex justify-between items-center">
+            <h1 class="text-lg font-bold text-white">Everest Hardware Co. (Pvt) Ltd.</h1>
+            <button id="logoutBtn" class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1 rounded-lg text-xs">Log Out</button>
         </nav>
 
-        <main class="flex-1 p-6 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <main class="p-6 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div class="no-print space-y-6 lg:col-span-1">
-                
-                <div class="bg-[#161b22] border border-[#30363d] p-1.5 rounded-xl flex gap-1">
-                    <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white font-medium py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-plus-circle"></i> New Return
-                    </button>
-                    <button id="tabPayBtn" class="flex-1 text-gray-400 hover:text-white font-medium py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-cash-register"></i> Add Payment
-                    </button>
+            <!-- Left Side Control Inputs Panel -->
+            <div class="space-y-6 lg:col-span-1">
+                <!-- Tab Controls Buttons -->
+                <div class="card p-1 rounded-xl flex gap-1">
+                    <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-medium">New Return</button>
+                    <button id="tabPayBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium">Add Payment</button>
+                    <button id="tabMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium hidden">Admin Masters</button>
                 </div>
 
-                <div id="formNewBlock" class="bg-[#161b22] border border-[#30363d] rounded-xl p-5 shadow-xl space-y-4">
-                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider border-b border-[#30363d] pb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-money-check text-gray-400"></i> New Return Cheque Entry
-                    </h3>
+                <!-- Form 1: Add New Return Cheque (With Dynamic Dropdowns) -->
+                <div id="formNewBlock" class="card rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">New Return Cheque Entry</h3>
                     <form id="chequeForm" class="space-y-3 text-xs">
                         <div>
                             <label class="block text-gray-400 mb-1">Area Manager</label>
-                            <select id="mgrSelect" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" required>
-                                <option value="">Select Area Manager</option>
-                                <option value="Lakshman">Lakshman</option>
-                                <option value="Prasad">Prasad</option>
-                                <option value="Wathsala">Wathsala</option>
-                                <option value="Wickrama">Wickrama</option>
+                            <select id="mgrSelect" class="w-full p-2 rounded-lg" required>
+                                <option value="">Select Manager</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-gray-400 mb-1">Sales Representative (Rep)</label>
-                            <input type="text" id="repName" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" placeholder="Enter Rep Name" required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-400 mb-1">Return Bank Account</label>
-                            <select id="returnAccount" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" required>
-                                <option value="Sampath">Sampath Bank</option>
-                                <option value="BOC">Bank of Ceylon (BOC)</option>
-                                <option value="HNB">HNB</option>
-                                <option value="Seylan">Seylan Bank</option>
-                                <option value="Amana">Amana Bank</option>
-                                <option value="MM">MM Accounts</option>
+                            <select id="repSelect" class="w-full p-2 rounded-lg" required>
+                                <option value="">-- ප්‍රථමයෙන් Manager තෝරන්න --</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-gray-400 mb-1">Customer / Shop Name</label>
-                            <input type="text" id="custName" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" placeholder="e.g. Tharanga Hardware" required>
+                            <label class="block text-gray-400 mb-1">Customer Name</label>
+                            <input type="text" id="custName" class="w-full p-2 rounded-lg" required>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-gray-400 mb-1">Cheque Date</label>
-                                <input type="date" id="chqDate" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" required>
-                            </div>
-                            <div>
-                                <label class="block text-gray-400 mb-1">Cheque Number</label>
-                                <input type="text" id="chqNo" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" placeholder="6 Digits" required>
-                            </div>
+                            <input type="text" id="chqNo" class="w-full p-2 rounded-lg" placeholder="Chq No" required>
+                            <input type="date" id="chqDate" class="w-full p-2 rounded-lg" required>
                         </div>
-                        <div>
-                            <label class="block text-gray-400 mb-1">Cheque Value Amount (රු.)</label>
-                            <input type="number" step="0.01" id="chqAmount" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none font-semibold text-blue-400" placeholder="0.00" required>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition mt-2 shadow-md">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Save Cheque Record
-                        </button>
+                        <input type="number" id="chqAmount" class="w-full p-2 rounded-lg" placeholder="Amount (රු.)" required>
+                        <button type="submit" class="w-full bg-blue-600 p-2 rounded-lg font-semibold text-white">Save Cheque</button>
                     </form>
                 </div>
 
-                <div id="formPayBlock" class="hidden bg-[#161b22] border border-[#30363d] rounded-xl p-5 shadow-xl space-y-4">
-                    <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider border-b border-[#30363d] pb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-cash-register text-gray-400"></i> Add Customer Payment Receipt
-                    </h3>
+                <!-- Form 2: Add Payment Installment (කලින් එකම වේ...) -->
+                <div id="formPayBlock" class="hidden card rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment</h3>
                     <form id="paymentForm" class="space-y-3 text-xs">
-                        <div>
-                            <label class="block text-gray-400 mb-1">Target Return Cheque ID / No</label>
-                            <select id="targetChequeSelect" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" required>
-                                <option value="">Select Pending Return Cheque</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-gray-400 mb-1">Payment Method</label>
-                            <select id="payMethod" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" required>
-                                <option value="Cash">Cash (මුදදින්)</option>
-                                <option value="Cheque">New Replacement Cheque (නව චෙක්පතක්)</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-gray-400 mb-1">Receipt / Ref No</label>
-                                <input type="text" id="payRef" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" placeholder="Rec No / Chq No" required>
-                            </div>
-                            <div>
-                                <label class="block text-gray-400 mb-1">Received Date</label>
-                                <input type="date" id="payDate" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none" required>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-gray-400 mb-1">Received Amount (රු.)</label>
-                            <input type="number" step="0.01" id="payAmount" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2 text-white focus:border-blue-500 focus:outline-none font-semibold text-emerald-400" placeholder="0.00" required>
-                        </div>
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition mt-2 shadow-md">
-                            <i class="fa-solid fa-circle-check"></i> Submit Payment Receipt
-                        </button>
+                        <select id="targetChequeSelect" class="w-full p-2 rounded-lg" required></select>
+                        <select id="payMethod" class="w-full p-2 rounded-lg" required>
+                            <option value="Cash">Cash</option>
+                            <option value="Cheque">Replacement Cheque</option>
+                        </select>
+                        <input type="text" id="payRef" class="w-full p-2 rounded-lg" placeholder="Receipt / Ref No" required>
+                        <input type="date" id="payDate" class="w-full p-2 rounded-lg" required>
+                        <input type="number" id="payAmount" class="w-full p-2 rounded-lg" placeholder="Received Amount" required>
+                        <button type="submit" class="w-full bg-emerald-600 p-2 rounded-lg font-semibold text-white">Update Payment</button>
                     </form>
+                </div>
+
+                <!-- Form 3: Admin Master Management Block (NEW FEATURE) -->
+                <div id="formMasterBlock" class="hidden card rounded-xl p-5 space-y-4 border border-purple-900/40 bg-purple-950/5">
+                    <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-folder-plus"></i> Add Manager / Rep Master</h3>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-gray-400 mb-1">මොකක්ද එකතු කරන්නේ?</label>
+                            <select id="masterTypeSelector" class="w-full p-2 rounded-lg">
+                                <option value="Manager">New Area Manager (කලාපීය කළමනාකරු)</option>
+                                <option value="Rep">New Sales Rep (අලෙවි නියෝජිත)</option>
+                            </select>
+                        </div>
+                        <div id="masterParentBlock" class="hidden">
+                            <label class="block text-gray-400 mb-1">මෙම Rep අයිති කාටද? (Select Target Manager)</label>
+                            <select id="masterParentManager" class="w-full p-2 rounded-lg"></select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">නම (Name)</label>
+                            <input type="text" id="masterNameInput" class="w-full p-2 rounded-lg" placeholder="Enter Name here...">
+                        </div>
+                        <button id="saveMasterBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg font-semibold">Save Master Record</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-2 space-y-4 flex flex-col">
-                <div class="no-print bg-[#161b22] border border-[#30363d] p-4 rounded-xl flex flex-col md:flex-row gap-3">
-                    <div class="flex-1 relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                        </span>
-                        <input type="text" id="tableSearch" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none" placeholder="Search by Chq No, Customer, Rep...">
-                    </div>
-                    <div class="flex gap-2">
-                        <select id="filterManager" class="bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-xs text-gray-300 focus:border-blue-500 focus:outline-none">
-                            <option value="">All Managers</option>
-                            <option value="Lakshman">Lakshman</option>
-                            <option value="Prasad">Prasad</option>
-                            <option value="Wathsala">Wathsala</option>
-                            <option value="Wickrama">Wickrama</option>
-                        </select>
-                        <button id="refreshBtn" class="bg-[#21262d] border border-[#30363d] hover:bg-[#30363d] p-2 rounded-lg text-gray-300 transition" title="Refresh Data">
-                            <i class="fa-solid fa-rotate"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden shadow-xl flex-1 flex flex-col">
-                    <div class="overflow-x-auto custom-scrollbar flex-1">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-[#21262d] text-gray-300 border-b border-[#30363d]">
-                                    <th class="p-3 font-semibold">Chq No / Date</th>
-                                    <th class="p-3 font-semibold">Customer</th>
-                                    <th class="p-3 font-semibold">Manager / Rep</th>
-                                    <th class="p-3 font-semibold text-right">Original Amt</th>
-                                    <th class="p-3 font-semibold text-right">Net Balance</th>
-                                    <th class="p-3 font-semibold text-center no-print">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="chequeTableBody" class="divide-y divide-[#30363d]">
-                                <tr>
-                                    <td colspan="6" class="p-8 text-center text-gray-500">
-                                        <i class="fa-solid fa-spinner animate-spin text-lg mb-2"></i>
-                                        <p>පද්ධති දත්ත සම්බන්ධ වෙමින් පවතී...</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- Right Side Table View Area (කලින් එකම වේ...) -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="card p-5 rounded-xl">
+                    <h3 class="text-sm font-bold text-gray-300 mb-4">Return Cheques & Balances Registry</h3>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-gray-800 text-gray-400">
+                                <th class="p-2">Chq No</th>
+                                <th class="p-2">Customer</th>
+                                <th class="p-2">Manager / Rep</th>
+                                <th class="p-2 text-right">Balance</th>
+                                <th class="p-2 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chequeTableBody"></tbody>
+                    </table>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="printContainer" class="hidden print-area fixed inset-0 bg-black/80 z-[100] overflow-y-auto p-4 flex items-center justify-center no-print">
-        <div class="bg-[#161b22] border border-[#30363d] w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="no-print bg-[#21262d] px-5 py-3 border-b border-[#30363d] flex justify-between items-center">
-                <span class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-print text-blue-400"></i> Statement Print Preview</span>
-                <button id="closePrintModal" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            
-            <div id="printInvoiceBody" class="p-8 bg-white text-black overflow-y-auto flex-1 custom-scrollbar text-sm">
-                </div>
-            
-            <div class="no-print bg-[#21262d] p-3 border-t border-[#30363d] flex justify-end gap-2">
-                <button id="triggerPrintBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-md">
-                    <i class="fa-solid fa-print"></i> Print Now (A4)
-                </button>
-            </div>
-        </div>
-    </div>
-
+    <!-- JS ENGINE LOGIC -->
     <script>
-        // ENTER YOUR GOOGLE APPS SCRIPT EXECUTION WEB APP URL HERE:
-        const API_URL = "https://script.google.com/macros/s/AKfycbxuRAeh9JPMHgtHXZ__aulCTf6KJf_g9YX2_StDSdBp0WpAmlSji0N06jIPzKqfT9Ui/exec";
-
-        // Global State Architecture Cache Tracker
+        const API_URL = "https://script.google.com/macros/s/AKfycbyae5fQwaq8i1vT3nno2eEftQbJGosGQCk5-ks9A2nI7QiQ3DbaGvTP1jUhicla8JO9/exec";
         let currentSession = null;
-        let localChequeRecords = [];
+        let globalCheques = [];
+        let globalMasters = []; // Array tracking global manager/rep configurations
 
-        // Application Tab Layer Controls Toggle
+        // Tab Event Toggles
         const tabNewBtn = document.getElementById('tabNewBtn');
         const tabPayBtn = document.getElementById('tabPayBtn');
+        const tabMasterBtn = document.getElementById('tabMasterBtn');
         const formNewBlock = document.getElementById('formNewBlock');
         const formPayBlock = document.getElementById('formPayBlock');
+        const formMasterBlock = document.getElementById('formMasterBlock');
 
-        tabNewBtn.addEventListener('click', () => {
-            tabNewBtn.className = "flex-1 bg-blue-600 text-white font-medium py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5";
-            tabPayBtn.className = "flex-1 text-gray-400 hover:text-white font-medium py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5";
-            formNewBlock.classList.remove('hidden');
-            formPayBlock.classList.add('hidden');
+        tabNewBtn.addEventListener('click', () => { setTabActive(formNewBlock, tabNewBtn, 'bg-blue-600'); });
+        tabPayBtn.addEventListener('click', () => { setTabActive(formPayBlock, tabPayBtn, 'bg-emerald-600'); });
+        tabMasterBtn.addEventListener('click', () => { setTabActive(formMasterBlock, tabMasterBtn, 'bg-purple-600'); });
+
+        function setTabActive(activeBlock, activeTab, activeClass) {
+            [formNewBlock, formPayBlock, formMasterBlock].forEach(b => b.classList.add('hidden'));
+            [tabNewBtn, tabPayBtn, tabMasterBtn].forEach(t => { 
+                t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"; 
+            });
+            activeBlock.classList.remove('hidden');
+            activeTab.className = `flex-1 ${activeClass} text-white py-2 rounded-lg text-xs font-medium`;
+        }
+
+        // Master UI Dropdown Dynamic Actions
+        document.getElementById('masterTypeSelector').addEventListener('change', (e) => {
+            const parentBlock = document.getElementById('masterParentBlock');
+            if(e.target.value === 'Rep') {
+                parentBlock.classList.remove('hidden');
+            } else {
+                parentBlock.classList.add('hidden');
+            }
         });
 
-        tabPayBtn.addEventListener('click', () => {
-            tabPayBtn.className = "flex-1 bg-emerald-600 text-white font-medium py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5";
-            tabNewBtn.className = "flex-1 text-gray-400 hover:text-white font-medium py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5";
-            formPayBlock.classList.remove('hidden');
-            formNewBlock.classList.add('hidden');
+        // Cascading Dropdown Logic Execution (වැදගත්ම කොටස!)
+        document.getElementById('mgrSelect').addEventListener('change', (e) => {
+            const selectedManager = e.target.value;
+            const repSelect = document.getElementById('repSelect');
+            repSelect.innerHTML = `<option value="">Select Rep</option>`;
+            
+            // Filters only the reps attached to this selected manager parent configuration
+            const filteredReps = globalMasters.filter(m => m.type === 'Rep' && m.parent === selectedManager);
+            
+            if(filteredReps.length === 0) {
+                repSelect.innerHTML = `<option value="">-- No Reps Found under this Manager --</option>`;
+            } else {
+                filteredReps.forEach(rep => {
+                    const opt = document.createElement('option');
+                    opt.value = rep.value;
+                    opt.innerText = rep.value;
+                    repSelect.appendChild(opt);
+                });
+            }
         });
 
-        // 1. Authentication Layer Security Core
+        // Login core workflow authentication setup mapping
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Processing Auth...`;
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
+                action: "login", username: document.getElementById('username').value, password: document.getElementById('password').value
+            })});
+            const data = await res.json();
+            if(data.status === "success") {
+                currentSession = data;
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                if(data.role === 'admin') tabMasterBtn.classList.remove('hidden');
+                fetchDataEngine();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        });
+
+        // Global Fetch Interface Implementation Configuration
+        async function fetchDataEngine() {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            globalCheques = data.cheques;
+            globalMasters = data.masters;
             
-            const payload = {
-                action: "login",
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            };
-
-            try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-                const data = await res.json();
-                
-                if (data.status === "success") {
-                    currentSession = data;
-                    document.getElementById('loginSection').classList.add('hidden');
-                    document.getElementById('dashboardSection').classList.remove('hidden');
-                    document.getElementById('userBadge').innerText = `User: ${data.username}`;
-                    document.getElementById('roleBadge').innerText = data.role;
-                    fetchCoreDatabase();
-                } else {
-                    showLoginError(data.message);
-                }
-            } catch (err) {
-                showLoginError("ජාල සම්බන්ධතා දෝෂයකි! කරුණාකර නැවත උත්සාහ කරන්න.");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Log In Securely`;
-            }
-        });
-
-        function showLoginError(msg) {
-            const errDiv = document.getElementById('loginError');
-            document.getElementById('loginErrorMsg').innerText = msg;
-            errDiv.classList.remove('hidden');
+            renderChequeTable(globalCheques);
+            rebuildMasterDropdownLists(globalMasters);
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            currentSession = null;
-            document.getElementById('username').value = "";
-            document.getElementById('password').value = "";
-            document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('dashboardSection').classList.add('hidden');
-            document.getElementById('loginError').classList.add('hidden');
-        });
-
-        // 2. Fetch API Data Sheet Component Core Engine
-        async function fetchCoreDatabase() {
-            const body = document.getElementById('chequeTableBody');
-            body.innerHTML = `
-                <tr>
-                    <td colspan="6" class="p-8 text-center text-gray-500">
-                        <i class="fa-solid fa-arrows-spin animate-spin text-lg mb-2"></i>
-                        <p>නැවුම් දත්ත Cloud එකෙන් බාගත වෙමින් පවතී...</p>
-                    </td>
-                </tr>`;
-            try {
-                const res = await fetch(API_URL);
-                localChequeRecords = await res.json();
-                renderTableMatrix(localChequeRecords);
-                populateTargetDropdowns(localChequeRecords);
-            } catch (err) {
-                body.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="p-8 text-center text-red-400">
-                            <i class="fa-solid fa-triangle-exclamation text-lg mb-2"></i>
-                            <p>දත්ත එකතු කිරීම අසාර්ථක විය. Apps Script API එක පරීක්ෂා කරන්න.</p>
-                        </td>
-                    </tr>`;
-            }
+        function rebuildMasterDropdownLists(masters) {
+            const mgrSelect = document.getElementById('mgrSelect');
+            const adminParentSelect = document.getElementById('masterParentManager');
+            
+            mgrSelect.innerHTML = `<option value="">Select Manager</option>`;
+            adminParentSelect.innerHTML = `<option value="">Select Manager</option>`;
+            
+            // Append only active records mapped as 'Manager' components
+            masters.filter(m => m.type === 'Manager').forEach(mgr => {
+                const opt1 = document.createElement('option'); opt1.value = mgr.value; opt1.innerText = mgr.value;
+                const opt2 = document.createElement('option'); opt2.value = mgr.value; opt2.innerText = mgr.value;
+                mgrSelect.appendChild(opt1);
+                adminParentSelect.appendChild(opt2);
+            });
         }
 
-        document.getElementById('refreshBtn').addEventListener('click', fetchCoreDatabase);
+        // Add Master POST Data execution method
+        document.getElementById('saveMasterBtn').addEventListener('submit', async () => {
+            const type = document.getElementById('masterTypeSelector').value;
+            const value = document.getElementById('masterNameInput').value;
+            const parent = document.getElementById('masterParentManager').value;
+            
+            if(!value) return alert("කරුණාකර නම ඇතුලත් කරන්න!");
 
-        // 3. Render Output Data Structure Logic Matrix
-        function renderTableMatrix(records) {
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
+                action: "add_master", type: type, value: value, parent_value: type === 'Rep' ? parent : '', role: currentSession.role
+            })});
+            const result = await res.json();
+            alert(result.message);
+            document.getElementById('masterNameInput').value = "";
+            fetchDataEngine();
+        });
+
+        // Table Render, Cheque/Payment submission codes... (කලින් දීපු codes මේ ආකාරයෙන්ම පිරවීමට හැක)
+        function renderChequeTable(cheques) {
             const body = document.getElementById('chequeTableBody');
             body.innerHTML = "";
-            
-            if(records.length === 0) {
-                body.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">කිසිදු සක්‍රීය Return Cheque වාර්තාවක් හමු නොවීය.</td></tr>`;
-                return;
-            }
-
-            records.forEach(rec => {
+            cheques.forEach(c => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-[#1f242c] transition duration-150 border-b border-[#30363d]";
-                
-                const balClass = rec.balance <= 0 ? "text-emerald-400 font-semibold" : "text-amber-400 font-semibold";
-                const isCleared = rec.balance <= 0 ? `<span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/40 px-1.5 py-0.5 rounded ml-1.5 uppercase font-medium">Cleared</span>` : '';
-
-                tr.innerHTML = `
-                    <td class="p-3">
-                        <div class="font-medium text-white flex items-center gap-1">${rec.chq_no} ${isCleared}</div>
-                        <div class="text-[11px] text-gray-400 mt-0.5">${formatCleanDate(rec.chq_date)} <span class="text-gray-600">|</span> <span class="text-blue-400 text-[10px]">${rec.account}</span></div>
-                    </td>
-                    <td class="p-3 font-medium text-gray-200">${rec.customer}</td>
-                    <td class="p-3">
-                        <div class="text-gray-300 font-medium">${rec.manager}</div>
-                        <div class="text-[11px] text-gray-400 mt-0.5">${rec.rep}</div>
-                    </td>
-                    <td class="p-3 text-right font-medium text-gray-300">රු. ${parseFloat(rec.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td class="p-3 text-right ${balClass}">රු. ${parseFloat(rec.balance).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td class="p-3 text-center no-print">
-                        <div class="inline-flex gap-1">
-                            <button onclick="launchPrintDashboard('${rec.id}')" class="bg-[#21262d] hover:bg-blue-600 hover:text-white text-gray-300 border border-[#30363d] px-2.5 py-1 rounded transition text-[11px] flex items-center gap-1" title="Print Mini Receipt">
-                                <i class="fa-solid fa-print"></i> History
-                            </button>
-                            ${currentSession.role === 'admin' ? `
-                                <button onclick="triggerDeleteProcess('${rec.id}')" class="bg-[#21262d] hover:bg-red-600 hover:text-white text-red-400 border border-[#30363d] px-2 py-1 rounded transition text-[11px]" title="Delete Record">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    </td>
-                `;
+                tr.innerHTML = `<td class="p-2">${c.chq_no}</td><td class="p-2">${c.customer}</td><td class="p-2">${c.manager} / ${c.rep}</td><td class="p-2 text-right">රු. ${c.balance}</td><td class="p-2 text-center">-</td>`;
                 body.appendChild(tr);
             });
-        }
-
-        function populateTargetDropdowns(records) {
-            const select = document.getElementById('targetChequeSelect');
-            select.innerHTML = `<option value="">Select Pending Return Cheque</option>`;
-            records.forEach(rec => {
-                if(rec.balance > 0) {
-                    const opt = document.createElement('option');
-                    opt.value = rec.id;
-                    opt.innerText = `Chq: ${rec.chq_no} - ${rec.customer} (Bal: ਰੁ. ${rec.balance})`;
-                    select.appendChild(opt);
-                }
-            });
-        }
-
-        // 4. Form Action Post Interface Operations
-        document.getElementById('chequeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> Saving...`;
-
-            const payload = {
-                action: "add_cheque",
-                manager_name: document.getElementById('mgrSelect').value,
-                rep_name: document.getElementById('repName').value,
-                return_account: document.getElementById('returnAccount').value,
-                customer_name: document.getElementById('custName').value,
-                cheque_date: document.getElementById('chqDate').value,
-                cheque_no: document.getElementById('chqNo').value,
-                amount: document.getElementById('chqAmount').value,
-                user: currentSession.username
-            };
-
-            try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-                const data = await res.json();
-                alert(data.message);
-                if(data.status === "success") {
-                    document.getElementById('chequeForm').reset();
-                    fetchCoreDatabase();
-                }
-            } catch (err) {
-                alert("දත්ත ඇතුලත් කිරීමේ දෝෂයකි!");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Cheque Record`;
-            }
-        });
-
-        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> Processing...`;
-
-            const payload = {
-                action: "add_payment",
-                cheque_reg_id: document.getElementById('targetChequeSelect').value,
-                payment_method: document.getElementById('payMethod').value,
-                ref_no: document.getElementById('payRef').value,
-                received_date: document.getElementById('payDate').value,
-                amount_received: document.getElementById('payAmount').value,
-                user: currentSession.username
-            };
-
-            try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-                const data = await res.json();
-                alert(data.message);
-                if(data.status === "success") {
-                    document.getElementById('paymentForm').reset();
-                    fetchCoreDatabase();
-                }
-            } catch (err) {
-                alert("පියවීම් ඇතුලත් කිරීමේ දෝෂයකි!");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Submit Payment Receipt`;
-            }
-        });
-
-        // 5. Admin Data Delete Core Logic Access Engine
-        async function triggerDeleteProcess(id) {
-            if(!confirm("මෙම Return Cheque වාර්තාව සම්පූර්ණයෙන්ම මකා දැමීමට ඔබට අවශ්‍ය බව ස්ථිරද?")) return;
-            const payload = { action: "delete_cheque", id: id, role: currentSession.role };
-            
-            try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-                const data = await res.json();
-                alert(data.message);
-                fetchCoreDatabase();
-            } catch (err) {
-                alert("මකා දැමීම අසාර්ථක විය!");
-            }
-        }
-
-        // 6. Search Filter Pipeline Modules
-        document.getElementById('tableSearch').addEventListener('input', runLiveSearchFilters);
-        document.getElementById('filterManager').addEventListener('change', runLiveSearchFilters);
-
-        function runLiveSearchFilters() {
-            const searchVal = document.getElementById('tableSearch').value.toLowerCase().trim();
-            const mgrVal = document.getElementById('filterManager').value;
-            
-            const filtered = localChequeRecords.filter(rec => {
-                const matchesSearch = rec.chq_no.toLowerCase().includes(searchVal) || 
-                                      rec.customer.toLowerCase().includes(searchVal) || 
-                                      rec.rep.toLowerCase().includes(searchVal);
-                const matchesManager = mgrVal === "" || rec.manager === mgrVal;
-                return matchesSearch && matchesManager;
-            });
-            renderTableMatrix(filtered);
-        }
-
-        // 7. Dynamic Print Receipt Generator A4 Structure Engine Mapping
-        function launchPrintDashboard(id) {
-            const rec = localChequeRecords.find(item => item.id === id);
-            if(!rec) return;
-
-            const modalBody = document.getElementById('printInvoiceBody');
-            let historyRows = '';
-            
-            if(rec.history && rec.history.length > 0) {
-                rec.history.forEach((h, index) => {
-                    historyRows += `
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 8px; text-align: center;">${index + 1}</td>
-                            <td style="padding: 8px;">${formatCleanDate(h.date)}</td>
-                            <td style="padding: 8px; text-align: center;"><span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:11px;">${h.method}</span></td>
-                            <td style="padding: 8px;">${h.ref}</td>
-                            <td style="padding: 8px; text-align: right; font-weight: 600;">රු. ${parseFloat(h.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                        </tr>`;
-                });
-            } else {
-                historyRows = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #777;">මෙතෙක් කිසිදු පියවීමක් සිදු කර නොමැත.</td></tr>`;
-            }
-
-            modalBody.innerHTML = `
-                <div style="font-family: Arial, sans-serif; color: #000;">
-                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px;">
-                        <h2 style="margin: 0; font-size: 20px; font-weight: bold; text-transform: uppercase;">Everest Hardware Co. (Pvt) Ltd.</h2>
-                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #55px;">Importers & Distributors of Hardware Tools</p>
-                        <h3 style="margin: 10px 0 0 0; font-size: 14px; background: #000; color: #fff; display: inline-block; padding: 4px 12px; border-radius: 4px;">RETURN CHEQUE STATEMENT</h3>
-                    </div>
-
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 13px;">
-                        <tr>
-                            <td style="width: 15%; padding: 4px 0; font-weight: bold;">Customer:</td>
-                            <td style="width: 45%; padding: 4px 0;">${rec.customer}</td>
-                            <td style="width: 20%; padding: 4px 0; font-weight: bold;">Statement Date:</td>
-                            <td style="width: 20%; padding: 4px 0;">${new Date().toISOString().split('T')[0]}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 0; font-weight: bold;">Area Manager:</td>
-                            <td style="padding: 4px 0;">${rec.manager}</td>
-                            <td style="padding: 4px 0; font-weight: bold;">Cheque Number:</td>
-                            <td style="padding: 4px 0; font-weight: bold; color: #000;">${rec.chq_no}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 0; font-weight: bold;">Sales Rep:</td>
-                            <td style="padding: 4px 0;">${rec.rep}</td>
-                            <td style="padding: 4px 0; font-weight: bold;">Cheque Date:</td>
-                            <td style="padding: 4px 0;">${formatCleanDate(rec.chq_date)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 0; font-weight: bold;">Return A/C:</td>
-                            <td style="padding: 4px 0;">${rec.account} Bank Account</td>
-                            <td style="padding: 4px 0; font-weight: bold;">Registry ID:</td>
-                            <td style="padding: 4px 0; font-family: monospace;">${rec.id}</td>
-                        </tr>
-                    </table>
-
-                    <h4 style="margin: 0 0 8px 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 4px;">Payment Received Log (පියවීම් ඉතිහාසය)</h4>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 12px;">
-                        <thead>
-                            <tr style="background: #f2f2f2; border-bottom: 1px solid #000;">
-                                <th style="padding: 8px; text-align: center; width: 8%;">#</th>
-                                <th style="padding: 8px; text-align: left; width: 25%;">Received Date</th>
-                                <th style="padding: 8px; text-align: center; width: 22%;">Method</th>
-                                <th style="padding: 8px; text-align: left; width: 25%;">Ref / Receipt No</th>
-                                <th style="padding: 8px; text-align: right; width: 20%;">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${historyRows}
-                        </tbody>
-                    </table>
-
-                    <div style="float: right; width: 45%; font-size: 13px;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr>
-                                <td style="padding: 6px 0; color:#555;">Original Return Value:</td>
-                                <td style="padding: 6px 0; text-align: right; font-weight: 600;">රු. ${parseFloat(rec.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #ddd;">
-                                <td style="padding: 6px 0; color:#555;">Total Recovered:</td>
-                                <td style="padding: 6px 0; text-align: right; font-weight: 600; color: green;">- රු. ${parseFloat(rec.amount - rec.balance).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                            </tr>
-                            <tr style="border-bottom: 4px double #000;">
-                                <td style="padding: 8px 0; font-weight: bold; font-size: 14px;">Outstanding Balance:</td>
-                                <td style="padding: 8px 0; text-align: right; font-weight: bold; font-size: 14px; color: ${rec.balance <= 0 ? 'green' : 'red'};">රු. ${parseFloat(rec.balance).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div style="clear: both;"></div>
-
-                    <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 11px;">
-                        <div style="text-align: center; width: 30%;">
-                            <div style="border-bottom: 1px dashed #000; height: 30px;"></div>
-                            <p style="margin: 5px 0 0 0;">Prepared By (Accounts Office)</p>
-                        </div>
-                        <div style="text-align: center; width: 30%;">
-                            <div style="border-bottom: 1px dashed #000; height: 30px;"></div>
-                            <p style="margin: 5px 0 0 0;">Verified By (Sales Manager)</p>
-                        </div>
-                        <div style="text-align: center; width: 30%;">
-                            <div style="border-bottom: 1px dashed #000; height: 30px;"></div>
-                            <p style="margin: 5px 0 0 0;">Authorized Signature</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('printContainer').classList.remove('hidden');
-        }
-
-        document.getElementById('closePrintModal').addEventListener('click', () => {
-            document.getElementById('printContainer').classList.add('hidden');
-        });
-
-        document.getElementById('triggerPrintBtn').addEventListener('click', () => {
-            window.print();
-        });
-
-        // 8. Helper Text Date String Sanitizer Utility Block
-        function formatCleanDate(isoString) {
-            if(!isoString) return "-";
-            const d = new Date(isoString);
-            if(isNaN(d.getTime())) return isoString;
-            return d.toISOString().split('T')[0];
         }
     </script>
 </body>
