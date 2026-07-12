@@ -15,19 +15,22 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
+    <!-- LOGIN SCREEN -->
     <div id="loginSection" class="flex-1 flex items-center justify-center p-4">
         <div class="w-full max-w-md card rounded-xl p-8 shadow-2xl">
             <h2 class="text-xl font-bold text-center text-white mb-6">Everest Hardware Secure Login</h2>
             <form id="loginForm" class="space-y-4">
                 <input type="text" id="username" class="w-full p-2.5 rounded-lg" placeholder="Username" required>
                 <input type="password" id="password" class="w-full p-2.5 rounded-lg" placeholder="Password" required>
-                <div id="loginError" class="text-red-400 text-xs hidden">වැරදි දත්තයකි!</div>
+                <div id="loginError" class="text-red-400 text-xs hidden">වැරදි පරිශීලක නාමයක් හෝ මුද්‍රාවක් (Password)!</div>
                 <button type="submit" class="w-full bg-blue-600 p-2.5 rounded-lg font-medium text-white">Log In</button>
             </form>
         </div>
     </div>
 
+    <!-- MAIN DASHBOARD -->
     <div id="dashboardSection" class="hidden flex-1 flex flex-col">
+        <!-- Top Nav -->
         <nav class="bg-[#161b22] border-b border-[#30363d] px-6 py-4 flex justify-between items-center">
             <h1 class="text-lg font-bold text-white">Everest Hardware Co. (Pvt) Ltd.</h1>
             <button id="logoutBtn" class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1 rounded-lg text-xs">Log Out</button>
@@ -35,13 +38,16 @@
 
         <main class="p-6 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             
+            <!-- Left Side Control Inputs Panel -->
             <div class="space-y-6 lg:col-span-1">
+                <!-- Tab Controls Buttons -->
                 <div class="card p-1 rounded-xl flex gap-1">
                     <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-medium">New Return</button>
                     <button id="tabPayBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium">Add Payment</button>
                     <button id="tabMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium hidden">Admin Masters</button>
                 </div>
 
+                <!-- Form 1: Add New Return Cheque -->
                 <div id="formNewBlock" class="card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">New Return Cheque Entry</h3>
                     <form id="chequeForm" class="space-y-3 text-xs">
@@ -70,14 +76,21 @@
                     </form>
                 </div>
 
+                <!-- Form 2: Add Payment -->
                 <div id="formPayBlock" class="hidden card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment</h3>
                     <form id="paymentForm" class="space-y-3 text-xs">
-                        <select id="targetChequeSelect" class="w-full p-2 rounded-lg" required></select>
-                        <select id="payMethod" class="w-full p-2 rounded-lg" required>
-                            <option value="Cash">Cash</option>
-                            <option value="Cheque">Replacement Cheque</option>
-                        </select>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Select Target Return Cheque</label>
+                            <select id="targetChequeSelect" class="w-full p-2 rounded-lg" required></select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Payment Method</label>
+                            <select id="payMethod" class="w-full p-2 rounded-lg" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Cheque">Replacement Cheque</option>
+                            </select>
+                        </div>
                         <input type="text" id="payRef" class="w-full p-2 rounded-lg" placeholder="Receipt / Ref No" required>
                         <input type="date" id="payDate" class="w-full p-2 rounded-lg" required>
                         <input type="number" id="payAmount" class="w-full p-2 rounded-lg" placeholder="Received Amount" required>
@@ -85,6 +98,7 @@
                     </form>
                 </div>
 
+                <!-- Form 3: Admin Master Management Block -->
                 <div id="formMasterBlock" class="hidden card rounded-xl p-5 space-y-4 border border-purple-900/40 bg-purple-950/5">
                     <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-folder-plus"></i> Add Manager / Rep Master</h3>
                     <div class="space-y-3 text-xs">
@@ -108,27 +122,31 @@
                 </div>
             </div>
 
+            <!-- Right Side Table View Area -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="card p-5 rounded-xl">
                     <h3 class="text-sm font-bold text-gray-300 mb-4">Return Cheques & Balances Registry</h3>
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="bg-gray-800 text-gray-400">
-                                <th class="p-2">Chq No</th>
-                                <th class="p-2">Customer</th>
-                                <th class="p-2">Manager / Rep</th>
-                                <th class="p-2 text-right">Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody id="chequeTableBody"></tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="bg-gray-800 text-gray-400">
+                                    <th class="p-2">Chq No</th>
+                                    <th class="p-2">Customer</th>
+                                    <th class="p-2">Manager / Rep</th>
+                                    <th class="p-2 text-right">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chequeTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- JS ENGINE LOGIC -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyae5fQwaq8i1vT3nno2eEftQbJGosGQCk5-ks9A2nI7QiQ3DbaGvTP1jUhicla8JO9/exec"; // <- ඔබගේ අලුත් Web App URL එක මෙතනට දාන්න.
+        const API_URL = "https://script.google.com/macros/s/AKfycbyae5fQwaq8i1vT3nno2eEftQbJGosGQCk5-ks9A2nI7QiQ3DbaGvTP1jUhicla8JO9/exec"; // <- ඔබගේ Apps Script Web App URL එක මෙතනට දමන්න.
         let currentSession = null;
         let globalCheques = [];
         let globalMasters = [];
@@ -184,33 +202,53 @@
             }
         });
 
-        // Login core workflow authentication
+        // Logout Event Logic
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            currentSession = null;
+            document.getElementById('username').value = "";
+            document.getElementById('password').value = "";
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            tabMasterBtn.classList.add('hidden');
+        });
+
+        // Login System Authentication
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
-                action: "login", username: document.getElementById('username').value, password: document.getElementById('password').value
-            })});
-            const data = await res.json();
-            if(data.status === "success") {
-                currentSession = data;
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('dashboardSection').classList.remove('hidden');
-                if(data.role === 'admin') tabMasterBtn.classList.remove('hidden');
-                fetchDataEngine();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
+            document.getElementById('loginError').classList.add('hidden');
+            try {
+                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
+                    action: "login", username: document.getElementById('username').value.trim(), password: document.getElementById('password').value.trim()
+                })});
+                const data = await res.json();
+                if(data.status === "success") {
+                    currentSession = data;
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('dashboardSection').classList.remove('hidden');
+                    if(data.role === 'admin') tabMasterBtn.classList.remove('hidden');
+                    fetchDataEngine();
+                } else {
+                    document.getElementById('loginError').classList.remove('hidden');
+                }
+            } catch (err) {
+                alert("API සන්නිවේදන දෝෂයකි: " + err.toString());
             }
         });
 
-        // Global Fetch Interface Implementation Configuration
+        // Load & Fetch Data Engine Data Stream
         async function fetchDataEngine() {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            globalCheques = data.cheques;
-            globalMasters = data.masters;
-            
-            renderChequeTable(globalCheques);
-            rebuildMasterDropdownLists(globalMasters);
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                globalCheques = data.cheques || [];
+                globalMasters = data.masters || [];
+                
+                renderChequeTable(globalCheques);
+                rebuildMasterDropdownLists(globalMasters);
+                rebuildTargetChequeSelect(globalCheques);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            }
         }
 
         function rebuildMasterDropdownLists(masters) {
@@ -228,20 +266,67 @@
             });
         }
 
-        // CORRECTED FIX: Click Event Handling for adding Master Record
+        function rebuildTargetChequeSelect(cheques) {
+            const targetSelect = document.getElementById('targetChequeSelect');
+            targetSelect.innerHTML = `<option value="">-- Select Return Cheque --</option>`;
+            cheques.forEach(c => {
+                if(c.balance > 0) {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.innerText = `Chq: ${c.chq_no} - ${c.customer} (Bal: රු.${c.balance})`;
+                    targetSelect.appendChild(opt);
+                }
+            });
+        }
+
+        // Form Submit: Add New Return Cheque
+        document.getElementById('chequeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                action: "add_cheque",
+                manager_name: document.getElementById('mgrSelect').value,
+                rep_name: document.getElementById('repSelect').value,
+                return_account: "Return Account",
+                customer_name: document.getElementById('custName').value,
+                cheque_date: document.getElementById('chqDate').value,
+                cheque_no: document.getElementById('chqNo').value,
+                amount: document.getElementById('chqAmount').value,
+                user: currentSession.username
+            };
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+            const result = await res.json();
+            alert(result.message);
+            document.getElementById('chequeForm').reset();
+            fetchDataEngine();
+        });
+
+        // Form Submit: Add Payment Log
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                action: "add_payment",
+                cheque_reg_id: document.getElementById('targetChequeSelect').value,
+                received_date: document.getElementById('payDate').value,
+                payment_method: document.getElementById('payMethod').value,
+                ref_no: document.getElementById('payRef').value,
+                amount_received: document.getElementById('payAmount').value,
+                user: currentSession.username
+            };
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+            const result = await res.json();
+            alert(result.message);
+            document.getElementById('paymentForm').reset();
+            fetchDataEngine();
+        });
+
+        // Click Action Click handling for master entries
         document.getElementById('saveMasterBtn').addEventListener('click', async () => {
             const type = document.getElementById('masterTypeSelector').value;
             const value = document.getElementById('masterNameInput').value.trim();
             const parent = document.getElementById('masterParentManager').value;
             
-            if(!value) {
-                alert("කරුණාකර නම ඇතුලත් කරන්න!");
-                return;
-            }
-            if(type === 'Rep' && !parent) {
-                alert("කරුණාකර මෙම Rep අයිති මැනේජර්වරයාව තෝරන්න!");
-                return;
-            }
+            if(!value) { alert("කරුණාකර නම ඇතුලත් කරන්න!"); return; }
+            if(type === 'Rep' && !parent) { alert("කරුණාකර මෙම Rep අයිති මැනේජර්වරයාව තෝරන්න!"); return; }
 
             const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
                 action: "add_master", type: type, value: value, parent_value: type === 'Rep' ? parent : '', role: currentSession.role
@@ -255,9 +340,19 @@
         function renderChequeTable(cheques) {
             const body = document.getElementById('chequeTableBody');
             body.innerHTML = "";
+            if(cheques.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">දත්ත කිසිවක් හමුනොවීය.</td></tr>`;
+                return;
+            }
             cheques.forEach(c => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="p-2">${c.chq_no}</td><td class="p-2">${c.customer}</td><td class="p-2">${c.manager} / ${c.rep}</td><td class="p-2 text-right">රු. ${c.balance}</td>`;
+                tr.className = "border-b border-[#30363d] hover:bg-gray-800/30";
+                tr.innerHTML = `
+                    <td class="p-2 font-mono text-white">${c.chq_no}</td>
+                    <td class="p-2">${c.customer}</td>
+                    <td class="p-2 text-gray-400">${c.manager} / ${c.rep}</td>
+                    <td class="p-2 text-right font-semibold text-emerald-400">රු. ${c.balance.toLocaleString()}</td>
+                `;
                 body.appendChild(tr);
             });
         }
