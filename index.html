@@ -15,9 +15,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- LOGIN SCREEN (කලින් කේතයම වේ...) -->
     <div id="loginSection" class="flex-1 flex items-center justify-center p-4">
-        <!-- Login Form Core Content -->
         <div class="w-full max-w-md card rounded-xl p-8 shadow-2xl">
             <h2 class="text-xl font-bold text-center text-white mb-6">Everest Hardware Secure Login</h2>
             <form id="loginForm" class="space-y-4">
@@ -29,9 +27,7 @@
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
     <div id="dashboardSection" class="hidden flex-1 flex flex-col">
-        <!-- Top Nav -->
         <nav class="bg-[#161b22] border-b border-[#30363d] px-6 py-4 flex justify-between items-center">
             <h1 class="text-lg font-bold text-white">Everest Hardware Co. (Pvt) Ltd.</h1>
             <button id="logoutBtn" class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1 rounded-lg text-xs">Log Out</button>
@@ -39,16 +35,13 @@
 
         <main class="p-6 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Left Side Control Inputs Panel -->
             <div class="space-y-6 lg:col-span-1">
-                <!-- Tab Controls Buttons -->
                 <div class="card p-1 rounded-xl flex gap-1">
                     <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-medium">New Return</button>
                     <button id="tabPayBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium">Add Payment</button>
                     <button id="tabMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium hidden">Admin Masters</button>
                 </div>
 
-                <!-- Form 1: Add New Return Cheque (With Dynamic Dropdowns) -->
                 <div id="formNewBlock" class="card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">New Return Cheque Entry</h3>
                     <form id="chequeForm" class="space-y-3 text-xs">
@@ -77,7 +70,6 @@
                     </form>
                 </div>
 
-                <!-- Form 2: Add Payment Installment (කලින් එකම වේ...) -->
                 <div id="formPayBlock" class="hidden card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment</h3>
                     <form id="paymentForm" class="space-y-3 text-xs">
@@ -93,7 +85,6 @@
                     </form>
                 </div>
 
-                <!-- Form 3: Admin Master Management Block (NEW FEATURE) -->
                 <div id="formMasterBlock" class="hidden card rounded-xl p-5 space-y-4 border border-purple-900/40 bg-purple-950/5">
                     <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-folder-plus"></i> Add Manager / Rep Master</h3>
                     <div class="space-y-3 text-xs">
@@ -112,12 +103,11 @@
                             <label class="block text-gray-400 mb-1">නම (Name)</label>
                             <input type="text" id="masterNameInput" class="w-full p-2 rounded-lg" placeholder="Enter Name here...">
                         </div>
-                        <button id="saveMasterBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg font-semibold">Save Master Record</button>
+                        <button id="saveMasterBtn" type="button" class="w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg font-semibold">Save Master Record</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side Table View Area (කලින් එකම වේ...) -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="card p-5 rounded-xl">
                     <h3 class="text-sm font-bold text-gray-300 mb-4">Return Cheques & Balances Registry</h3>
@@ -128,7 +118,6 @@
                                 <th class="p-2">Customer</th>
                                 <th class="p-2">Manager / Rep</th>
                                 <th class="p-2 text-right">Balance</th>
-                                <th class="p-2 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody id="chequeTableBody"></tbody>
@@ -138,12 +127,11 @@
         </main>
     </div>
 
-    <!-- JS ENGINE LOGIC -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyae5fQwaq8i1vT3nno2eEftQbJGosGQCk5-ks9A2nI7QiQ3DbaGvTP1jUhicla8JO9/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyae5fQwaq8i1vT3nno2eEftQbJGosGQCk5-ks9A2nI7QiQ3DbaGvTP1jUhicla8JO9/exec"; // <- ඔබගේ අලුත් Web App URL එක මෙතනට දාන්න.
         let currentSession = null;
         let globalCheques = [];
-        let globalMasters = []; // Array tracking global manager/rep configurations
+        let globalMasters = [];
 
         // Tab Event Toggles
         const tabNewBtn = document.getElementById('tabNewBtn');
@@ -166,7 +154,7 @@
             activeTab.className = `flex-1 ${activeClass} text-white py-2 rounded-lg text-xs font-medium`;
         }
 
-        // Master UI Dropdown Dynamic Actions
+        // Master UI Dropdown Toggles
         document.getElementById('masterTypeSelector').addEventListener('change', (e) => {
             const parentBlock = document.getElementById('masterParentBlock');
             if(e.target.value === 'Rep') {
@@ -176,13 +164,12 @@
             }
         });
 
-        // Cascading Dropdown Logic Execution (වැදගත්ම කොටස!)
+        // Cascading Dropdown Logic Execution (Manager -> Rep Filtering)
         document.getElementById('mgrSelect').addEventListener('change', (e) => {
             const selectedManager = e.target.value;
             const repSelect = document.getElementById('repSelect');
             repSelect.innerHTML = `<option value="">Select Rep</option>`;
             
-            // Filters only the reps attached to this selected manager parent configuration
             const filteredReps = globalMasters.filter(m => m.type === 'Rep' && m.parent === selectedManager);
             
             if(filteredReps.length === 0) {
@@ -197,7 +184,7 @@
             }
         });
 
-        // Login core workflow authentication setup mapping
+        // Login core workflow authentication
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
@@ -233,7 +220,6 @@
             mgrSelect.innerHTML = `<option value="">Select Manager</option>`;
             adminParentSelect.innerHTML = `<option value="">Select Manager</option>`;
             
-            // Append only active records mapped as 'Manager' components
             masters.filter(m => m.type === 'Manager').forEach(mgr => {
                 const opt1 = document.createElement('option'); opt1.value = mgr.value; opt1.innerText = mgr.value;
                 const opt2 = document.createElement('option'); opt2.value = mgr.value; opt2.innerText = mgr.value;
@@ -242,13 +228,20 @@
             });
         }
 
-        // Add Master POST Data execution method
-        document.getElementById('saveMasterBtn').addEventListener('submit', async () => {
+        // CORRECTED FIX: Click Event Handling for adding Master Record
+        document.getElementById('saveMasterBtn').addEventListener('click', async () => {
             const type = document.getElementById('masterTypeSelector').value;
-            const value = document.getElementById('masterNameInput').value;
+            const value = document.getElementById('masterNameInput').value.trim();
             const parent = document.getElementById('masterParentManager').value;
             
-            if(!value) return alert("කරුණාකර නම ඇතුලත් කරන්න!");
+            if(!value) {
+                alert("කරුණාකර නම ඇතුලත් කරන්න!");
+                return;
+            }
+            if(type === 'Rep' && !parent) {
+                alert("කරුණාකර මෙම Rep අයිති මැනේජර්වරයාව තෝරන්න!");
+                return;
+            }
 
             const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
                 action: "add_master", type: type, value: value, parent_value: type === 'Rep' ? parent : '', role: currentSession.role
@@ -259,13 +252,12 @@
             fetchDataEngine();
         });
 
-        // Table Render, Cheque/Payment submission codes... (කලින් දීපු codes මේ ආකාරයෙන්ම පිරවීමට හැක)
         function renderChequeTable(cheques) {
             const body = document.getElementById('chequeTableBody');
             body.innerHTML = "";
             cheques.forEach(c => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="p-2">${c.chq_no}</td><td class="p-2">${c.customer}</td><td class="p-2">${c.manager} / ${c.rep}</td><td class="p-2 text-right">රු. ${c.balance}</td><td class="p-2 text-center">-</td>`;
+                tr.innerHTML = `<td class="p-2">${c.chq_no}</td><td class="p-2">${c.customer}</td><td class="p-2">${c.manager} / ${c.rep}</td><td class="p-2 text-right">රු. ${c.balance}</td>`;
                 body.appendChild(tr);
             });
         }
