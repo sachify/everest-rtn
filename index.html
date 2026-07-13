@@ -96,7 +96,8 @@
                     <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment</h3>
                     <form id="paymentForm" class="space-y-3 text-xs">
                         <div>
-                            <label class="block text-gray-400 mb-1">Select Target Return Cheque</label>
+                            <label class="block text-gray-400 mb-1">Search & Select Target Return Cheque</label>
+                            <input type="text" id="chequeSearchInput" class="w-full p-2 mb-1.5 rounded-lg border border-gray-700 bg-gray-900 text-white placeholder-gray-500 font-medium" placeholder="🔍 Type Cheque No or Customer Name...">
                             <select id="targetChequeSelect" class="w-full p-2 rounded-lg" required></select>
                         </div>
                         <div>
@@ -311,17 +312,37 @@
             });
         }
 
-        function rebuildTargetChequeSelect(cheques) {
+        // Live Dropdown Builder with Filter Engine mapping
+        function rebuildTargetChequeSelect(cheques, filterText = "") {
             const targetSelect = document.getElementById('targetChequeSelect');
+            const currentSelectedValue = targetSelect.value;
             targetSelect.innerHTML = `<option value="">-- Select Return Cheque --</option>`;
+            
+            const lowerFilter = filterText.toLowerCase().trim();
+            
             cheques.forEach(c => {
                 if(c.balance > 0) {
-                    const opt = document.createElement('option'); opt.value = c.id;
-                    opt.innerText = `Chq: ${c.chq_no} - ${c.customer} (Bal: රු.${c.balance})`;
-                    targetSelect.appendChild(opt);
+                    const matchChqNo = String(c.chq_no).toLowerCase().includes(lowerFilter);
+                    const matchCustomer = String(c.customer).toLowerCase().includes(lowerFilter);
+                    
+                    if(filterText === "" || matchChqNo || matchCustomer) {
+                        const opt = document.createElement('option'); 
+                        opt.value = c.id;
+                        opt.innerText = `Chq: ${c.chq_no} - ${c.customer} (Bal: රු.${c.balance})`;
+                        targetSelect.appendChild(opt);
+                    }
                 }
             });
+            
+            if (currentSelectedValue) {
+                targetSelect.value = currentSelectedValue;
+            }
         }
+
+        // Keyup input listener for real-time drop-down search execution
+        document.getElementById('chequeSearchInput').addEventListener('input', (e) => {
+            rebuildTargetChequeSelect(globalCheques, e.target.value);
+        });
 
         function renderMasterAdminList(masters) {
             const listContainer = document.getElementById('masterItemsList');
@@ -370,11 +391,21 @@
 
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            await fetch(API_URL, { method: "POST", body: JSON.stringify({
-                action: "add_payment", cheque_reg_id: document.getElementById('targetChequeSelect').value, received_date: document.getElementById('payDate').value,
-                payment_method: document.getElementById('payMethod').value, ref_no: document.getElementById('payRef').value, amount_received: document.getElementById('payAmount').value, user: currentSession.username
-            }) });
-            document.getElementById('paymentForm').reset(); fetchDataEngine();
+            try {
+                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
+                    action: "add_payment", cheque_reg_id: document.getElementById('targetChequeSelect').value, received_date: document.getElementById('payDate').value,
+                    payment_method: document.getElementById('payMethod').value, ref_no: document.getElementById('payRef').value, amount_received: document.getElementById('payAmount').value, user: currentSession.username
+                }) });
+                
+                // Alert trigger for validation confirmation response array mapping
+                alert("Payment එක සාර්ථකව යාවත්කාලීන කරන ලදී! (Update Successful)");
+                
+                document.getElementById('paymentForm').reset(); 
+                document.getElementById('chequeSearchInput').value = ""; // Reset search field inputs
+                fetchDataEngine();
+            } catch(err) {
+                alert("Payment එක යාවත්කාලීන කිරීමේදී දෝෂයක් සිදු විය: " + err.toString());
+            }
         });
 
         document.getElementById('saveMasterBtn').addEventListener('click', async () => {
