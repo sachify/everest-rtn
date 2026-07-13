@@ -12,10 +12,10 @@
         input, select { background-color: #0d1117; border: 1px solid #30363d; color: #e6edf3; }
         input:focus, select:focus { border-color: #58a6ff; outline: none; }
         
-        /* Excel Sheet Style Custom Table Rules */
         .ledger-table th { background-color: #1f2937; color: #f3f4f6; border: 1px solid #374151; font-weight: 600; text-align: center; font-size: 11px; }
         .ledger-table td { border: 1px solid #374151; padding: 6px; font-size: 11px; vertical-align: top; }
-        .sub-row td { border-top: 1px dashed #4b5563 !important; border-bottom: 1px dashed #4b5563 !important; background-color: #161b22/30; }
+        .sub-row td { border-top: 1px dashed #4b5563 !important; border-bottom: 1px dashed #4b5563 !important; }
+        .bounced-line { background-color: rgba(239, 68, 68, 0.05); color: #f87171 !important; }
 
         @media print {
             body { background-color: white; color: black; }
@@ -106,7 +106,7 @@
                                 <option value="Cheque">Replacement Cheque</option>
                             </select>
                         </div>
-                        <input type="text" id="payRef" class="w-full p-2 rounded-lg" placeholder="Receipt / Ref No" required>
+                        <input type="text" id="payRef" class="w-full p-2 rounded-lg" placeholder="Receipt / Replacement Chq No" required>
                         <input type="date" id="payDate" class="w-full p-2 rounded-lg" required>
                         <input type="number" id="payAmount" class="w-full p-2 rounded-lg" placeholder="Received Amount" required>
                         <button type="submit" class="w-full bg-emerald-600 p-2 rounded-lg font-semibold text-white">Update Payment</button>
@@ -133,7 +133,6 @@
                         </div>
                         <button id="saveMasterBtn" type="button" class="w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg font-semibold">Save Master Record</button>
                     </div>
-
                     <div class="border-t border-[#30363d] pt-4 mt-2">
                         <h4 class="text-xs font-bold text-gray-400 mb-2">Existing Master Records</h4>
                         <div class="max-h-40 overflow-y-auto space-y-2 text-xs" id="masterItemsList"></div>
@@ -142,11 +141,8 @@
             </div>
 
             <div class="xl:col-span-3 space-y-6">
-                
                 <div id="registryTableBlock" class="card p-5 rounded-xl">
-                    <h3 class="text-sm font-bold text-gray-300 mb-4 flex justify-between items-center">
-                        <span>Return Cheques & Balances Registry</span>
-                    </h3>
+                    <h3 class="text-sm font-bold text-gray-300 mb-4">Return Cheques & Balances Registry</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead>
@@ -163,25 +159,12 @@
                 </div>
 
                 <div id="reportsInterfaceBlock" class="hidden space-y-6">
-                    
                     <div class="card p-4 rounded-xl no-print">
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800">
-                                <div class="text-[10px] text-gray-400">0 - 30 Days</div>
-                                <div id="ageing0_30" class="text-xs font-bold text-white">රු. 0</div>
-                            </div>
-                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800">
-                                <div class="text-[10px] text-amber-400/80">31 - 60 Days</div>
-                                <div id="ageing31_60" class="text-xs font-bold text-amber-400">රු. 0</div>
-                            </div>
-                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800">
-                                <div class="text-[10px] text-orange-400/80">61 - 90 Days</div>
-                                <div id="ageing61_90" class="text-xs font-bold text-orange-400">රු. 0</div>
-                            </div>
-                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800">
-                                <div class="text-[10px] text-red-400/80">90+ Overdue</div>
-                                <div id="ageing90_plus" class="text-xs font-bold text-red-400">රු. 0</div>
-                            </div>
+                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800"><div class="text-[10px] text-gray-400">0 - 30 Days</div><div id="ageing0_30" class="text-xs font-bold text-white">රු. 0</div></div>
+                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800"><div class="text-[10px] text-amber-400/80">31 - 60 Days</div><div id="ageing31_60" class="text-xs font-bold text-amber-400">රු. 0</div></div>
+                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800"><div class="text-[10px] text-orange-400/80">61 - 90 Days</div><div id="ageing61_90" class="text-xs font-bold text-orange-400">රු. 0</div></div>
+                            <div class="bg-gray-900/50 p-2 rounded border border-gray-800"><div class="text-[10px] text-red-400/80">90+ Overdue</div><div id="ageing90_plus" class="text-xs font-bold text-red-400">රු. 0</div></div>
                         </div>
                     </div>
 
@@ -212,18 +195,16 @@
                                         <th class="p-1">Amount</th>
                                         <th class="p-1">Rec. Date</th>
                                         <th class="p-1">Cash</th>
-                                        <th class="p-1">Chq</th>
-                                        <th class="p-1">Receipt / Ref</th>
+                                        <th class="p-1">Chq (Ref/No)</th>
+                                        <th class="p-1">Status Remarks</th>
                                         <th class="p-1">Paid Amount</th>
                                     </tr>
                                 </thead>
-                                <tbody id="ledgerReportTableBody">
-                                    </tbody>
+                                <tbody id="ledgerReportTableBody"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
@@ -242,69 +223,36 @@
         const formNewBlock = document.getElementById('formNewBlock');
         const formPayBlock = document.getElementById('formPayBlock');
         const formMasterBlock = document.getElementById('formMasterBlock');
-        
         const registryTableBlock = document.getElementById('registryTableBlock');
         const reportsInterfaceBlock = document.getElementById('reportsInterfaceBlock');
 
         tabNewBtn.addEventListener('click', () => { setTabActive(formNewBlock, tabNewBtn, 'bg-blue-600', false); });
         tabPayBtn.addEventListener('click', () => { setTabActive(formPayBlock, tabPayBtn, 'bg-emerald-600', false); });
         tabMasterBtn.addEventListener('click', () => { setTabActive(formMasterBlock, tabMasterBtn, 'bg-purple-600', false); });
-        
-        tabReportBtn.addEventListener('click', () => { 
-            setTabActive(null, tabReportBtn, 'bg-cyan-600', true); 
-            calculateAndRenderLedgerReport();
-        });
-
-        document.getElementById('reportRepFilter').addEventListener('change', () => {
-            calculateAndRenderLedgerReport();
-        });
+        tabReportBtn.addEventListener('click', () => { setTabActive(null, tabReportBtn, 'bg-cyan-600', true); calculateAndRenderLedgerReport(); });
+        document.getElementById('reportRepFilter').addEventListener('change', () => { calculateAndRenderLedgerReport(); });
 
         function setTabActive(activeBlock, activeTab, activeClass, isReportMode) {
             [formNewBlock, formPayBlock, formMasterBlock].forEach(b => b.classList.add('hidden'));
-            [tabNewBtn, tabPayBtn, tabReportBtn, tabMasterBtn].forEach(t => { 
-                t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"; 
-            });
-            
+            [tabNewBtn, tabPayBtn, tabReportBtn, tabMasterBtn].forEach(t => { t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"; });
             activeTab.className = `flex-1 ${activeClass} text-white py-2 rounded-lg text-xs font-medium`;
-            
-            if(isReportMode) {
-                registryTableBlock.classList.add('hidden');
-                reportsInterfaceBlock.classList.remove('hidden');
-            } else {
-                activeBlock.classList.remove('hidden');
-                registryTableBlock.classList.remove('hidden');
-                reportsInterfaceBlock.classList.add('hidden');
-            }
+            if(isReportMode) { registryTableBlock.classList.add('hidden'); reportsInterfaceBlock.classList.remove('hidden'); } 
+            else { activeBlock.classList.remove('hidden'); registryTableBlock.classList.remove('hidden'); reportsInterfaceBlock.classList.add('hidden'); }
         }
 
         document.getElementById('masterTypeSelector').addEventListener('change', (e) => {
             const parentBlock = document.getElementById('masterParentBlock');
-            if(e.target.value === 'Rep') { parentBlock.classList.remove('hidden'); } 
-            else { parentBlock.classList.add('hidden'); }
+            if(e.target.value === 'Rep') { parentBlock.classList.remove('hidden'); } else { parentBlock.classList.add('hidden'); }
         });
 
         document.getElementById('mgrSelect').addEventListener('change', (e) => {
             const selectedManager = e.target.value;
             const repSelect = document.getElementById('repSelect');
             repSelect.innerHTML = `<option value="">Select Rep</option>`;
-            
-            const filteredReps = globalMasters.filter(m => m.type === 'Rep' && m.parent === selectedManager);
-            if(filteredReps.length === 0) {
-                repSelect.innerHTML = `<option value="">-- No Reps Found --</option>`;
-            } else {
-                filteredReps.forEach(rep => {
-                    const opt = document.createElement('option');
-                    opt.value = rep.value; opt.innerText = rep.value;
-                    repSelect.appendChild(opt);
-                });
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            currentSession = null;
-            document.getElementById('dashboardSection').classList.add('hidden');
-            document.getElementById('loginSection').classList.remove('hidden');
-            tabMasterBtn.classList.add('hidden');
+            globalMasters.filter(m => m.type === 'Rep' && m.parent === selectedManager).forEach(rep => {
+                const opt = document.createElement('option'); opt.value = rep.value; opt.innerText = rep.value;
+                repSelect.appendChild(opt);
+            });
         });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -321,12 +269,8 @@
                     document.getElementById('dashboardSection').classList.remove('hidden');
                     if(data.role === 'admin') tabMasterBtn.classList.remove('hidden');
                     fetchDataEngine();
-                } else {
-                    document.getElementById('loginError').classList.remove('hidden');
-                }
-            } catch (err) {
-                alert("API Error: " + err.toString());
-            }
+                } else { document.getElementById('loginError').classList.remove('hidden'); }
+            } catch (err) { alert("API Error: " + err.toString()); }
         });
 
         async function fetchDataEngine() {
@@ -335,30 +279,21 @@
                 const data = await res.json();
                 globalCheques = data.cheques || [];
                 globalMasters = data.masters || [];
-                
                 renderChequeTable(globalCheques);
                 rebuildMasterDropdownLists(globalMasters);
                 rebuildTargetChequeSelect(globalCheques);
                 renderMasterAdminList(globalMasters);
                 populateReportFilterDropdown(globalMasters);
-                
-                if(!reportsInterfaceBlock.classList.contains('hidden')) {
-                    calculateAndRenderLedgerReport();
-                }
-            } catch (err) {
-                console.error("Error matrix stream:", err);
-            }
+                if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
+            } catch (err) { console.error("Error matrix stream:", err); }
         }
 
         function populateReportFilterDropdown(masters) {
             const filterDropdown = document.getElementById('reportRepFilter');
             const currentVal = filterDropdown.value;
             filterDropdown.innerHTML = `<option value="ALL">-- All Reps / Managers --</option>`;
-            
             masters.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m.value;
-                opt.innerText = `${m.type}: ${m.value}`;
+                const opt = document.createElement('option'); opt.value = m.value; opt.innerText = `${m.type}: ${m.value}`;
                 filterDropdown.appendChild(opt);
             });
             filterDropdown.value = currentVal || "ALL";
@@ -369,12 +304,10 @@
             const adminParentSelect = document.getElementById('masterParentManager');
             mgrSelect.innerHTML = `<option value="">Select Manager</option>`;
             adminParentSelect.innerHTML = `<option value="">Select Manager</option>`;
-            
             masters.filter(m => m.type === 'Manager').forEach(mgr => {
                 const opt1 = document.createElement('option'); opt1.value = mgr.value; opt1.innerText = mgr.value;
                 const opt2 = document.createElement('option'); opt2.value = mgr.value; opt2.innerText = mgr.value;
-                mgrSelect.appendChild(opt1);
-                adminParentSelect.appendChild(opt2);
+                mgrSelect.appendChild(opt1); adminParentSelect.appendChild(opt2);
             });
         }
 
@@ -412,44 +345,36 @@
 
         async function renameMasterItem(index) {
             const item = globalMasters[index];
-            const newValue = prompt(`"${item.value}" සඳහා නව නම ඇතුලත් කරන්න:`, item.value);
+            const newValue = prompt(`"${item.value}" සඳහා නව නම:`, item.value);
             if(!newValue || newValue.trim() === "" || newValue.trim() === item.value) return;
-            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
-                action: "add_master", type: item.type, value: newValue.trim(), parent_value: item.parent || '', role: currentSession.role, edit_index: index, operation: "edit"
-            })});
+            await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "add_master", type: item.type, value: newValue.trim(), parent_value: item.parent || '', role: currentSession.role, edit_index: index, operation: "edit" })});
             fetchDataEngine();
         }
 
         async function deleteMasterItem(index) {
             const item = globalMasters[index];
             if(!confirm(`ඔබට සැබෑවටම "${item.value}" ඉවත් කිරීමට අවශ්‍යද?`)) return;
-            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
-                action: "add_master", type: item.type, value: item.value, parent_value: item.parent || '', role: currentSession.role, edit_index: index, operation: "delete"
-            })});
+            await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "add_master", type: item.type, value: item.value, parent_value: item.parent || '', role: currentSession.role, edit_index: index, operation: "delete" })});
             fetchDataEngine();
         }
 
         document.getElementById('chequeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const payload = {
+            await fetch(API_URL, { method: "POST", body: JSON.stringify({
                 action: "add_cheque", manager_name: document.getElementById('mgrSelect').value, rep_name: document.getElementById('repSelect').value,
                 return_account: "Return Account", customer_name: document.getElementById('custName').value, cheque_date: document.getElementById('chqDate').value,
                 cheque_no: document.getElementById('chqNo').value, amount: document.getElementById('chqAmount').value, user: currentSession.username
-            };
-            await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-            document.getElementById('chequeForm').reset();
-            fetchDataEngine();
+            }) });
+            document.getElementById('chequeForm').reset(); fetchDataEngine();
         });
 
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const payload = {
+            await fetch(API_URL, { method: "POST", body: JSON.stringify({
                 action: "add_payment", cheque_reg_id: document.getElementById('targetChequeSelect').value, received_date: document.getElementById('payDate').value,
                 payment_method: document.getElementById('payMethod').value, ref_no: document.getElementById('payRef').value, amount_received: document.getElementById('payAmount').value, user: currentSession.username
-            };
-            await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-            document.getElementById('paymentForm').reset();
-            fetchDataEngine();
+            }) });
+            document.getElementById('paymentForm').reset(); fetchDataEngine();
         });
 
         document.getElementById('saveMasterBtn').addEventListener('click', async () => {
@@ -457,41 +382,49 @@
             const value = document.getElementById('masterNameInput').value.trim();
             const parent = document.getElementById('masterParentManager').value;
             if(!value) return;
-            await fetch(API_URL, { method: "POST", body: JSON.stringify({
-                action: "add_master", type: type, value: value, parent_value: type === 'Rep' ? parent : '', role: currentSession.role, operation: "add"
-            })});
-            document.getElementById('masterNameInput').value = "";
-            fetchDataEngine();
+            await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "add_master", type: type, value: value, parent_value: type === 'Rep' ? parent : '', role: currentSession.role, operation: "add" })});
+            document.getElementById('masterNameInput').value = ""; fetchDataEngine();
         });
 
         function renderChequeTable(cheques) {
-            const body = document.getElementById('chequeTableBody');
-            body.innerHTML = "";
+            const body = document.getElementById('chequeTableBody'); body.innerHTML = "";
             cheques.forEach(c => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-800 hover:bg-gray-800/30";
-                tr.innerHTML = `
-                    <td class="p-2 font-mono text-white">${c.chq_no}</td>
-                    <td class="p-2">${c.customer}</td>
-                    <td class="p-2 text-gray-400">${c.manager} / ${c.rep}</td>
-                    <td class="p-2 text-right font-semibold text-emerald-400">රු. ${c.balance.toLocaleString()}</td>
-                `;
+                const tr = document.createElement('tr'); tr.className = "border-b border-gray-800 hover:bg-gray-800/30";
+                tr.innerHTML = `<td class="p-2 font-mono text-white">${c.chq_no}</td><td class="p-2">${c.customer}</td><td class="p-2 text-gray-400">${c.manager} / ${c.rep}</td><td class="p-2 text-right font-semibold text-emerald-400">රු. ${c.balance.toLocaleString()}</td>`;
                 body.appendChild(tr);
             });
         }
 
-        // =========================================================
-        // ADVANCED EXCEL-STYLE SHEET LEDGER REPORT RENDERING ENGINE
-        // =========================================================
+        // BOUNCE FUNCTIONALITY CONTROLLER VIA LIVE API MUTATION
+        async function markPaymentAsBounced(chequeId, paymentIndex) {
+            if(!confirm("ඔබට සැබෑවටම මෙම Replacement Cheque එක Return (Bounce) වූ බව සටහන් කිරීමට අවශ්‍යද?")) return;
+            
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "bounce_payment",
+                        cheque_id: chequeId,
+                        payment_index: paymentIndex,
+                        user: currentSession.username
+                    })
+                });
+                const result = await res.json();
+                alert(result.message);
+                fetchDataEngine();
+            } catch(e) {
+                alert("Bounce කිරීමේදී දෝෂයක් සිදු විය.");
+            }
+        }
+
+        // ADVANCED SHEET LEDGER RENDERING ENGINE WITH BOUNCE CAPABILITIES
         function calculateAndRenderLedgerReport() {
             const tableBody = document.getElementById('ledgerReportTableBody');
             tableBody.innerHTML = "";
-            
             const filterValue = document.getElementById('reportRepFilter').value;
             let ageing = { zero_30: 0, thirty1_60: 0, sixty1_90: 0, ninety_plus: 0 };
             const today = new Date();
 
-            // Filter logic metrics map
             let filteredCheques = globalCheques.filter(c => {
                 if(filterValue === "ALL") return true;
                 return (c.rep === filterValue || c.manager === filterValue);
@@ -503,7 +436,6 @@
             }
 
             filteredCheques.forEach(c => {
-                // Calculate real-time global metrics map updates
                 if (c.balance > 0) {
                     const chequeDate = c.chq_date ? new Date(c.chq_date) : new Date();
                     const diffDays = Math.ceil(Math.abs(today - chequeDate) / (1000 * 60 * 60 * 24));
@@ -516,11 +448,9 @@
                 const history = c.history || [];
                 const rowSpanCount = history.length > 0 ? history.length : 1;
 
-                // Base Primary Row Structure Generation Block
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-800/20";
                 
-                // Rep / Manager Column Matrix Injection Map
                 let htmlContent = `
                     <td rowspan="${rowSpanCount}" class="font-medium text-white">${c.rep}<br><span class="text-gray-500 text-[10px]">${c.manager}</span></td>
                     <td rowspan="${rowSpanCount}" class="text-gray-200">${c.customer}</td>
@@ -529,61 +459,65 @@
                     <td rowspan="${rowSpanCount}" class="text-right font-semibold text-blue-400">රු. ${c.amount.toLocaleString()}</td>
                 `;
 
-                // Sub installment payment logic iteration row compilation mapping blocks
                 if(history.length === 0) {
                     htmlContent += `
-                        <td class="text-center text-gray-600">-</td>
-                        <td class="text-center text-gray-600">-</td>
-                        <td class="text-center text-gray-600">-</td>
-                        <td class="text-center text-gray-600">-</td>
+                        <td class="text-center text-gray-600">-</td><td class="text-center text-gray-600">-</td>
+                        <td class="text-center text-gray-600">-</td><td class="text-center text-gray-600">-</td>
                         <td class="text-right text-gray-600">0.00</td>
                         <td rowspan="${rowSpanCount}" class="text-right font-bold text-red-400 bg-red-950/10">රු. ${c.balance.toLocaleString()}</td>
                     `;
                     tr.innerHTML = htmlContent;
                     tableBody.appendChild(tr);
                 } else {
-                    // Inject first entry payment logs
                     const firstPay = history[0];
+                    const isBounced = firstPay.remarks && firstPay.remarks.includes("BOUNCED");
+                    if(isBounced) tr.classList.add('bounced-line');
+
+                    // Bounce button config inject mapping
+                    let bounceBtn = (firstPay.method === 'Cheque' && !isBounced) ? 
+                        `<button onclick="markPaymentAsBounced('${c.id}', 0)" class="no-print ml-1 text-red-500 hover:text-red-400" title="Mark as Bounced"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
+
                     htmlContent += `
                         <td class="text-center font-mono text-gray-400">${firstPay.date ? firstPay.date.split('T')[0] : ''}</td>
-                        <td class="text-center text-xs">${firstPay.method === 'Cash' ? '✔' : ''}</td>
-                        <td class="text-center text-xs">${firstPay.method === 'Cheque' ? '✔' : ''}</td>
-                        <td class="text-center font-mono text-gray-300">${firstPay.ref || ''}</td>
-                        <td class="text-right font-medium text-emerald-400">රු. ${firstPay.amount.toLocaleString()}</td>
+                        <td class="text-center text-xs text-emerald-400">${firstPay.method === 'Cash' ? '✔ Cash' : ''}</td>
+                        <td class="text-center font-mono text-xs">${firstPay.method === 'Cheque' ? `✔ Chq: ${firstPay.ref || ''} ${bounceBtn}` : '-'}</td>
+                        <td class="text-center font-medium ${isBounced ? 'text-red-400 font-bold' : 'text-gray-400'}">${firstPay.method === 'Cash' ? (firstPay.ref || 'Receipt') : (isBounced ? '❌ BOUNCED' : 'Active')}</td>
+                        <td class="text-right font-medium ${isBounced ? 'line-through text-gray-500' : 'text-emerald-400'}">රු. ${firstPay.amount.toLocaleString()}</td>
                         <td rowspan="${rowSpanCount}" class="text-right font-bold ${c.balance <= 0 ? 'text-emerald-500 bg-emerald-950/10' : 'text-red-400 bg-red-950/10'}">රු. ${c.balance.toLocaleString()}</td>
                     `;
                     tr.innerHTML = htmlContent;
                     tableBody.appendChild(tr);
 
-                    // If more installments rows exist loop append blocks cleanly
                     for(let i = 1; i < history.length; i++) {
                         const pay = history[i];
+                        const subIsBounced = pay.remarks && pay.remarks.includes("BOUNCED");
                         const subTr = document.createElement('tr');
                         subTr.className = "sub-row hover:bg-gray-800/20";
+                        if(subIsBounced) subTr.classList.add('bounced-line');
+
+                        let subBounceBtn = (pay.method === 'Cheque' && !subIsBounced) ? 
+                            `<button onclick="markPaymentAsBounced('${c.id}', ${i})" class="no-print ml-1 text-red-500 hover:text-red-400" title="Mark as Bounced"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
+
                         subTr.innerHTML = `
                             <td class="text-center font-mono text-gray-400">${pay.date ? pay.date.split('T')[0] : ''}</td>
-                            <td class="text-center text-xs">${pay.method === 'Cash' ? '✔' : ''}</td>
-                            <td class="text-center text-xs">${pay.method === 'Cheque' ? '✔' : ''}</td>
-                            <td class="text-center font-mono text-gray-300">${pay.ref || ''}</td>
-                            <td class="text-right font-medium text-emerald-400">රු. ${pay.amount.toLocaleString()}</td>
+                            <td class="text-center text-xs text-emerald-400">${pay.method === 'Cash' ? '✔ Cash' : ''}</td>
+                            <td class="text-center font-mono text-xs">${pay.method === 'Cheque' ? `✔ Chq: ${pay.ref || ''} ${subBounceBtn}` : '-'}</td>
+                            <td class="text-center font-medium ${subIsBounced ? 'text-red-400 font-bold' : 'text-gray-400'}">${pay.method === 'Cash' ? (pay.ref || 'Receipt') : (subIsBounced ? '❌ BOUNCED' : 'Active')}</td>
+                            <td class="text-right font-medium ${subIsBounced ? 'line-through text-gray-500' : 'text-emerald-400'}">රු. ${pay.amount.toLocaleString()}</td>
                         `;
                         tableBody.appendChild(subTr);
                     }
                 }
             });
 
-            // Update UI widgets blocks elements
             document.getElementById('ageing0_30').innerText = `රු. ${ageing.zero_30.toLocaleString()}`;
             document.getElementById('ageing31_60').innerText = `රු. ${ageing.thirty1_60.toLocaleString()}`;
             document.getElementById('ageing61_90').innerText = `රු. ${ageing.sixty1_90.toLocaleString()}`;
             document.getElementById('ageing90_plus').innerText = `රු. ${ageing.ninety_plus.toLocaleString()}`;
         }
 
-        function triggerPrintPreview() {
-            const today = new Date();
-            document.getElementById('printDateSpan').innerText = today.toLocaleDateString() + ' ' + today.toLocaleTimeString();
-            window.print();
-        }
+        document.getElementById('logoutBtn').addEventListener('click', () => { currentSession = null; document.getElementById('dashboardSection').classList.add('hidden'); document.getElementById('loginSection').classList.remove('hidden'); tabMasterBtn.classList.add('hidden'); });
+        function triggerPrintPreview() { const today = new Date(); document.getElementById('printDateSpan').innerText = today.toLocaleDateString() + ' ' + today.toLocaleTimeString(); window.print(); }
     </script>
 </body>
 </html>
