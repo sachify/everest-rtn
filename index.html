@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everest Hardware - Return Cheque Network</title>
+    <title>Everest Hardware - Return Cheque Network (Customer & Rep Linked Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -30,6 +30,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
+    <!-- LOGIN SCREEN -->
     <div id="loginSection" class="flex-1 flex items-center justify-center p-4 no-print">
         <div class="w-full max-w-md card rounded-xl p-8 shadow-2xl">
             <h2 class="text-xl font-bold text-center text-white mb-6">Everest Hardware Secure Login</h2>
@@ -42,12 +43,15 @@
         </div>
     </div>
 
+    <!-- MAIN DASHBOARD -->
     <div id="dashboardSection" class="hidden flex-1 flex flex-col">
+        <!-- Top Nav -->
         <nav class="bg-[#161b22] border-b border-[#30363d] px-6 py-4 flex justify-between items-center no-print">
             <h1 class="text-lg font-bold text-white">Everest Hardware Co. (Pvt) Ltd.</h1>
             <button id="logoutBtn" class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1 rounded-lg text-xs">Log Out</button>
         </nav>
 
+        <!-- Printable Header -->
         <div class="hidden max-w-[95%] w-full mx-auto p-4 border-b border-gray-400 mb-4" id="printHeader">
             <h1 class="text-2xl font-bold text-black text-center">EVEREST HARDWARE CO. (PVT) LTD.</h1>
             <p class="text-center text-sm text-gray-600">Return Cheques Master Ledger Statement</p>
@@ -56,17 +60,26 @@
 
         <main class="p-4 max-w-[1600px] w-full mx-auto grid grid-cols-1 xl:grid-cols-4 gap-6">
             
+            <!-- Left Side Control Panel -->
             <div class="space-y-6 xl:col-span-1 no-print">
                 <div class="card p-1 rounded-xl flex flex-wrap gap-1">
                     <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-medium">New Return</button>
                     <button id="tabPayBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium">Add Payment</button>
-                    <button id="tabReportBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"><i class="fa-solid fa-file-invoice-dollar"></i> Detailed Report</button>
+                    <button id="tabCustMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium">Add Customer</button>
+                    <button id="tabReportBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"><i class="fa-solid fa-file-invoice-dollar"></i> Report</button>
                     <button id="tabMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium hidden">Admin Masters</button>
                 </div>
 
+                <!-- Form 1: Add New Return Cheque (With Autofill Rep/Mgr Feature) -->
                 <div id="formNewBlock" class="card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">New Return Cheque Entry</h3>
                     <form id="chequeForm" class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Select Customer Master</label>
+                            <select id="custMasterSelect" class="w-full p-2 rounded-lg" required>
+                                <option value="">Select Customer</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-gray-400 mb-1">Area Manager</label>
                             <select id="mgrSelect" class="w-full p-2 rounded-lg" required>
@@ -76,12 +89,8 @@
                         <div>
                             <label class="block text-gray-400 mb-1">Sales Representative (Rep)</label>
                             <select id="repSelect" class="w-full p-2 rounded-lg" required>
-                                <option value="">-- ප්‍රථමයෙන් Manager තෝරන්න --</option>
+                                <option value="">Select Rep</option>
                             </select>
-                        </div>
-                        <div>
-                            <label class="block text-gray-400 mb-1">Customer Name</label>
-                            <input type="text" id="custName" class="w-full p-2 rounded-lg" required>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="text" id="chqNo" class="w-full p-2 rounded-lg" placeholder="Chq No" required>
@@ -92,13 +101,14 @@
                     </form>
                 </div>
 
+                <!-- Form 2: Smart FIFO Payment Form -->
                 <div id="formPayBlock" class="hidden card rounded-xl p-5 space-y-4">
-                    <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment</h3>
+                    <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment (FIFO Mode)</h3>
                     <form id="paymentForm" class="space-y-3 text-xs">
                         <div>
-                            <label class="block text-gray-400 mb-1">Search & Select Target Return Cheque</label>
-                            <input type="text" id="chequeSearchInput" class="w-full p-2 mb-1.5 rounded-lg border border-gray-700 bg-gray-900 text-white placeholder-gray-500 font-medium" placeholder="🔍 Type Cheque No or Customer Name...">
-                            <select id="targetChequeSelect" class="w-full p-2 rounded-lg" required></select>
+                            <label class="block text-gray-400 mb-1">Search & Select Target Customer</label>
+                            <input type="text" id="customerSearchInput" class="w-full p-2 mb-1.5 rounded-lg border border-gray-700 bg-gray-900 text-white placeholder-gray-500 font-medium" placeholder="🔍 Type Customer Name to search...">
+                            <select id="targetCustomerSelect" class="w-full p-2 rounded-lg" required></select>
                         </div>
                         <div>
                             <label class="block text-gray-400 mb-1">Payment Method</label>
@@ -109,11 +119,34 @@
                         </div>
                         <input type="text" id="payRef" class="w-full p-2 rounded-lg" placeholder="Receipt / Replacement Chq No" required>
                         <input type="date" id="payDate" class="w-full p-2 rounded-lg" required>
-                        <input type="number" id="payAmount" class="w-full p-2 rounded-lg" placeholder="Received Amount" required>
+                        <input type="number" id="payAmount" class="w-full p-2 rounded-lg" placeholder="Total Amount Received (රු.)" required>
                         <button type="submit" class="w-full bg-emerald-600 p-2 rounded-lg font-semibold text-white">Update Payment</button>
                     </form>
                 </div>
 
+                <!-- Form 4: Create Customer Master (With Linked Rep Selector) -->
+                <div id="formCustMasterBlock" class="hidden card rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">Create Customer Master</h3>
+                    <form id="custMasterForm" class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Customer / Shop Name</label>
+                            <input type="text" id="newCustName" class="w-full p-2 rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Area / Route</label>
+                            <input type="text" id="newCustArea" class="w-full p-2 rounded-lg" placeholder="e.g. Colombo, Kandy" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Assign Sales Representative (Rep)</label>
+                            <select id="newCustRepSelect" class="w-full p-2 rounded-lg" required>
+                                <option value="">Select Rep</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-amber-600 p-2 rounded-lg font-semibold text-white">Save Customer Master</button>
+                    </form>
+                </div>
+
+                <!-- Form 3: Admin Master Management Block -->
                 <div id="formMasterBlock" class="hidden card rounded-xl p-5 space-y-4 border border-purple-900/40 bg-purple-950/5">
                     <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-folder-plus"></i> Add Manager / Rep Master</h3>
                     <div class="space-y-3 text-xs">
@@ -141,7 +174,9 @@
                 </div>
             </div>
 
+            <!-- Right Side Content -->
             <div class="xl:col-span-3 space-y-6">
+                <!-- REGISTRY TABLE -->
                 <div id="registryTableBlock" class="card p-5 rounded-xl">
                     <h3 class="text-sm font-bold text-gray-300 mb-4">Return Cheques & Balances Registry</h3>
                     <div class="overflow-x-auto">
@@ -149,7 +184,7 @@
                             <thead>
                                 <tr class="bg-gray-800 text-gray-400 border border-gray-700">
                                     <th class="p-2">Chq No</th>
-                                    <th class="p-2">Customer</th>
+                                    <th class="p-2">Customer Name</th>
                                     <th class="p-2">Manager / Rep</th>
                                     <th class="p-2 text-right">Balance</th>
                                 </tr>
@@ -159,7 +194,9 @@
                     </div>
                 </div>
 
+                <!-- LIVE EXCEL LEDGER REPORT BLOCK -->
                 <div id="reportsInterfaceBlock" class="hidden space-y-6">
+                    <!-- Ageing Snapshot -->
                     <div class="card p-4 rounded-xl no-print">
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                             <div class="bg-gray-900/50 p-2 rounded border border-gray-800"><div class="text-[10px] text-gray-400">0 - 30 Days</div><div id="ageing0_30" class="text-xs font-bold text-white">රු. 0</div></div>
@@ -169,6 +206,7 @@
                         </div>
                     </div>
 
+                    <!-- Filter Control bar -->
                     <div class="card p-4 rounded-xl no-print flex flex-wrap gap-4 items-center text-xs">
                         <div>
                             <label class="text-gray-400 mr-2">Filter by Rep / Manager:</label>
@@ -179,6 +217,7 @@
                         <button onclick="triggerPrintPreview()" class="ml-auto bg-cyan-600 hover:bg-cyan-700 text-white font-semibold px-4 py-1.5 rounded-lg shadow-md"><i class="fa-solid fa-print"></i> Print Full Sheet</button>
                     </div>
 
+                    <!-- Master Spreadsheet Structure -->
                     <div class="card p-5 rounded-xl bg-[#161b22]">
                         <div class="overflow-x-auto">
                             <table class="w-full ledger-table text-left border-collapse">
@@ -186,7 +225,7 @@
                                     <tr>
                                         <th rowspan="2" class="p-2">Rep / Manager</th>
                                         <th colspan="4" class="p-1 bg-blue-950/40">Return Cheque Details</th>
-                                        <th colspan="5" class="p-1 bg-emerald-950/40">Payment Received Details</th>
+                                        <th colspan="5" class="p-1 bg-emerald-950/40">Payment Received Details (FIFO Split Mapping)</th>
                                         <th rowspan="2" class="p-2">Net Balance</th>
                                     </tr>
                                     <tr>
@@ -210,32 +249,37 @@
         </main>
     </div>
 
+    <!-- JS ENGINE LOGIC -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzYLbRhPV9MD3XGZ7Rqf0ZWUZvFmQfozVgRYvt8qpe2rTGtCrEVMa5SLRq5MtWVfeY4/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzXQkd3ofSh4ybJe70pq5ClLD9PBofE6ff-CDVvLaizgSLRfWqjjqY7iHryDk1LuObM/exec";
         let currentSession = null;
         let globalCheques = [];
         let globalMasters = [];
+        let globalCustomers = [];
 
         const tabNewBtn = document.getElementById('tabNewBtn');
         const tabPayBtn = document.getElementById('tabPayBtn');
+        const tabCustMasterBtn = document.getElementById('tabCustMasterBtn');
         const tabReportBtn = document.getElementById('tabReportBtn');
         const tabMasterBtn = document.getElementById('tabMasterBtn');
         
         const formNewBlock = document.getElementById('formNewBlock');
         const formPayBlock = document.getElementById('formPayBlock');
+        const formCustMasterBlock = document.getElementById('formCustMasterBlock');
         const formMasterBlock = document.getElementById('formMasterBlock');
         const registryTableBlock = document.getElementById('registryTableBlock');
         const reportsInterfaceBlock = document.getElementById('reportsInterfaceBlock');
 
         tabNewBtn.addEventListener('click', () => { setTabActive(formNewBlock, tabNewBtn, 'bg-blue-600', false); });
         tabPayBtn.addEventListener('click', () => { setTabActive(formPayBlock, tabPayBtn, 'bg-emerald-600', false); });
+        tabCustMasterBtn.addEventListener('click', () => { setTabActive(formCustMasterBlock, tabCustMasterBtn, 'bg-amber-600', false); });
         tabMasterBtn.addEventListener('click', () => { setTabActive(formMasterBlock, tabMasterBtn, 'bg-purple-600', false); });
         tabReportBtn.addEventListener('click', () => { setTabActive(null, tabReportBtn, 'bg-cyan-600', true); calculateAndRenderLedgerReport(); });
         document.getElementById('reportRepFilter').addEventListener('change', () => { calculateAndRenderLedgerReport(); });
 
         function setTabActive(activeBlock, activeTab, activeClass, isReportMode) {
-            [formNewBlock, formPayBlock, formMasterBlock].forEach(b => b.classList.add('hidden'));
-            [tabNewBtn, tabPayBtn, tabReportBtn, tabMasterBtn].forEach(t => { t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"; });
+            [formNewBlock, formPayBlock, formCustMasterBlock, formMasterBlock].forEach(b => b.classList.add('hidden'));
+            [tabNewBtn, tabPayBtn, tabCustMasterBtn, tabReportBtn, tabMasterBtn].forEach(t => { t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"; });
             activeTab.className = `flex-1 ${activeClass} text-white py-2 rounded-lg text-xs font-medium`;
             if(isReportMode) { registryTableBlock.classList.add('hidden'); reportsInterfaceBlock.classList.remove('hidden'); } 
             else { activeBlock.classList.remove('hidden'); registryTableBlock.classList.remove('hidden'); reportsInterfaceBlock.classList.add('hidden'); }
@@ -246,14 +290,44 @@
             if(e.target.value === 'Rep') { parentBlock.classList.remove('hidden'); } else { parentBlock.classList.add('hidden'); }
         });
 
+        // Dynamic Manager selection filters reps accordingly
         document.getElementById('mgrSelect').addEventListener('change', (e) => {
-            const selectedManager = e.target.value;
+            populateRepDropdown(e.target.value);
+        });
+
+        function populateRepDropdown(selectedManager, preSelectedRep = "") {
             const repSelect = document.getElementById('repSelect');
             repSelect.innerHTML = `<option value="">Select Rep</option>`;
-            globalMasters.filter(m => m.type === 'Rep' && m.parent === selectedManager).forEach(rep => {
+            
+            let filteredReps = globalMasters.filter(m => m.type === 'Rep');
+            if(selectedManager) {
+                filteredReps = filteredReps.filter(m => m.parent === selectedManager);
+            }
+            
+            filteredReps.forEach(rep => {
                 const opt = document.createElement('option'); opt.value = rep.value; opt.innerText = rep.value;
                 repSelect.appendChild(opt);
             });
+            if(preSelectedRep) repSelect.value = preSelectedRep;
+        }
+
+        // AUTO-FILL ENGINE: When Customer Master is chosen on Return Entry
+        document.getElementById('custMasterSelect').addEventListener('change', (e) => {
+            const customerName = e.target.value;
+            if(!customerName) return;
+            
+            const customerObj = globalCustomers.find(c => c.name === customerName);
+            if(customerObj && customerObj.rep) {
+                const assignedRep = customerObj.rep;
+                // Find manager of this Rep from master list
+                const repMaster = globalMasters.find(m => m.type === 'Rep' && m.value === assignedRep);
+                if(repMaster && repMaster.parent) {
+                    document.getElementById('mgrSelect').value = repMaster.parent;
+                    populateRepDropdown(repMaster.parent, assignedRep);
+                } else {
+                    document.getElementById('repSelect').value = assignedRep;
+                }
+            }
         });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -280,9 +354,11 @@
                 const data = await res.json();
                 globalCheques = data.cheques || [];
                 globalMasters = data.masters || [];
+                globalCustomers = data.customers || [];
+                
                 renderChequeTable(globalCheques);
                 rebuildMasterDropdownLists(globalMasters);
-                rebuildTargetChequeSelect(globalCheques);
+                rebuildCustomerDropdowns(globalCustomers);
                 renderMasterAdminList(globalMasters);
                 populateReportFilterDropdown(globalMasters);
                 if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
@@ -303,45 +379,52 @@
         function rebuildMasterDropdownLists(masters) {
             const mgrSelect = document.getElementById('mgrSelect');
             const adminParentSelect = document.getElementById('masterParentManager');
+            const newCustRepSelect = document.getElementById('newCustRepSelect');
+            
             mgrSelect.innerHTML = `<option value="">Select Manager</option>`;
             adminParentSelect.innerHTML = `<option value="">Select Manager</option>`;
+            newCustRepSelect.innerHTML = `<option value="">Select Rep</option>`;
+            
             masters.filter(m => m.type === 'Manager').forEach(mgr => {
                 const opt1 = document.createElement('option'); opt1.value = mgr.value; opt1.innerText = mgr.value;
                 const opt2 = document.createElement('option'); opt2.value = mgr.value; opt2.innerText = mgr.value;
                 mgrSelect.appendChild(opt1); adminParentSelect.appendChild(opt2);
             });
+
+            masters.filter(m => m.type === 'Rep').forEach(rep => {
+                const opt3 = document.createElement('option'); opt3.value = rep.value; opt3.innerText = rep.value;
+                newCustRepSelect.appendChild(opt3);
+            });
         }
 
-        // Live Dropdown Builder with Filter Engine mapping
-        function rebuildTargetChequeSelect(cheques, filterText = "") {
-            const targetSelect = document.getElementById('targetChequeSelect');
-            const currentSelectedValue = targetSelect.value;
-            targetSelect.innerHTML = `<option value="">-- Select Return Cheque --</option>`;
+        function rebuildCustomerDropdowns(customers, filterText = "") {
+            const entrySelect = document.getElementById('custMasterSelect');
+            const paymentSelect = document.getElementById('targetCustomerSelect');
+            
+            const prevEntryVal = entrySelect.value;
+            const prevPayVal = paymentSelect.value;
+            
+            entrySelect.innerHTML = `<option value="">Select Customer Master</option>`;
+            paymentSelect.innerHTML = `<option value="">-- Select Target Customer --</option>`;
             
             const lowerFilter = filterText.toLowerCase().trim();
             
-            cheques.forEach(c => {
-                if(c.balance > 0) {
-                    const matchChqNo = String(c.chq_no).toLowerCase().includes(lowerFilter);
-                    const matchCustomer = String(c.customer).toLowerCase().includes(lowerFilter);
-                    
-                    if(filterText === "" || matchChqNo || matchCustomer) {
-                        const opt = document.createElement('option'); 
-                        opt.value = c.id;
-                        opt.innerText = `Chq: ${c.chq_no} - ${c.customer} (Bal: රු.${c.balance})`;
-                        targetSelect.appendChild(opt);
-                    }
+            customers.forEach(c => {
+                const opt1 = document.createElement('option'); opt1.value = c.name; opt1.innerText = `${c.name} (${c.area})`;
+                entrySelect.appendChild(opt1);
+                
+                if(filterText === "" || c.name.toLowerCase().includes(lowerFilter) || c.area.toLowerCase().includes(lowerFilter)) {
+                    const opt2 = document.createElement('option'); opt2.value = c.name; opt2.innerText = `${c.name} (${c.area})`;
+                    paymentSelect.appendChild(opt2);
                 }
             });
             
-            if (currentSelectedValue) {
-                targetSelect.value = currentSelectedValue;
-            }
+            if(prevEntryVal) entrySelect.value = prevEntryVal;
+            if(prevPayVal) paymentSelect.value = prevPayVal;
         }
 
-        // Keyup input listener for real-time drop-down search execution
-        document.getElementById('chequeSearchInput').addEventListener('input', (e) => {
-            rebuildTargetChequeSelect(globalCheques, e.target.value);
+        document.getElementById('customerSearchInput').addEventListener('input', (e) => {
+            rebuildCustomerDropdowns(globalCustomers, e.target.value);
         });
 
         function renderMasterAdminList(masters) {
@@ -383,29 +466,40 @@
             e.preventDefault();
             await fetch(API_URL, { method: "POST", body: JSON.stringify({
                 action: "add_cheque", manager_name: document.getElementById('mgrSelect').value, rep_name: document.getElementById('repSelect').value,
-                return_account: "Return Account", customer_name: document.getElementById('custName').value, cheque_date: document.getElementById('chqDate').value,
+                return_account: "Return Account", customer_name: document.getElementById('custMasterSelect').value, cheque_date: document.getElementById('chqDate').value,
                 cheque_no: document.getElementById('chqNo').value, amount: document.getElementById('chqAmount').value, user: currentSession.username
             }) });
             document.getElementById('chequeForm').reset(); fetchDataEngine();
+            alert("Return Cheque පද්ධතියට සාර්ථකව ඇතුළත් කරන ලදී!");
         });
 
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
                 const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
-                    action: "add_payment", cheque_reg_id: document.getElementById('targetChequeSelect').value, received_date: document.getElementById('payDate').value,
+                    action: "add_customer_payment", customer_name: document.getElementById('targetCustomerSelect').value, received_date: document.getElementById('payDate').value,
                     payment_method: document.getElementById('payMethod').value, ref_no: document.getElementById('payRef').value, amount_received: document.getElementById('payAmount').value, user: currentSession.username
                 }) });
-                
-                // Alert trigger for validation confirmation response array mapping
-                alert("Payment එක සාර්ථකව යාවත්කාලීන කරන ලදී! (Update Successful)");
-                
+                const responseData = await res.json();
+                alert(responseData.message);
                 document.getElementById('paymentForm').reset(); 
-                document.getElementById('chequeSearchInput').value = ""; // Reset search field inputs
+                document.getElementById('customerSearchInput').value = "";
                 fetchDataEngine();
-            } catch(err) {
-                alert("Payment එක යාවත්කාලීන කිරීමේදී දෝෂයක් සිදු විය: " + err.toString());
-            }
+            } catch(err) { alert("ගෙවීම් යාවත්කාලීන කිරීමේදී දෝෂයක් සිදු විය: " + err.toString()); }
+        });
+
+        // Add Customer Master Submit (With Rep Value Injection)
+        document.getElementById('custMasterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch(API_URL, { method: "POST", body: JSON.stringify({
+                action: "add_customer_master",
+                name: document.getElementById('newCustName').value.trim(),
+                area: document.getElementById('newCustArea').value.trim(),
+                rep: document.getElementById('newCustRepSelect').value
+            })});
+            document.getElementById('custMasterForm').reset();
+            fetchDataEngine();
+            alert("නව Customer Master එක අදාළ Sales Rep සමඟ සාර්ථකව සුරක්ෂිත කරන ලදී!");
         });
 
         document.getElementById('saveMasterBtn').addEventListener('click', async () => {
@@ -426,29 +520,19 @@
             });
         }
 
-        // BOUNCE FUNCTIONALITY CONTROLLER VIA LIVE API MUTATION
         async function markPaymentAsBounced(chequeId, paymentIndex) {
             if(!confirm("ඔබට සැබෑවටම මෙම Replacement Cheque එක Return (Bounce) වූ බව සටහන් කිරීමට අවශ්‍යද?")) return;
-            
             try {
                 const res = await fetch(API_URL, {
                     method: "POST",
-                    body: JSON.stringify({
-                        action: "bounce_payment",
-                        cheque_id: chequeId,
-                        payment_index: paymentIndex,
-                        user: currentSession.username
-                    })
+                    body: JSON.stringify({ action: "bounce_payment", cheque_id: chequeId, payment_index: paymentIndex, user: currentSession.username })
                 });
                 const result = await res.json();
                 alert(result.message);
                 fetchDataEngine();
-            } catch(e) {
-                alert("Bounce කිරීමේදී දෝෂයක් සිදු විය.");
-            }
+            } catch(e) { alert("Bounce කිරීමේදී දෝෂයක් සිදු විය."); }
         }
 
-        // ADVANCED SHEET LEDGER RENDERING ENGINE WITH BOUNCE CAPABILITIES
         function calculateAndRenderLedgerReport() {
             const tableBody = document.getElementById('ledgerReportTableBody');
             tableBody.innerHTML = "";
@@ -465,6 +549,8 @@
                 tableBody.innerHTML = `<tr><td colspan="11" class="p-4 text-center text-gray-500">වාර්තා කිසිවක් හමුනොවීය.</td></tr>`;
                 return;
             }
+
+            filteredCheques.sort((a,b) => String(a.customer).localeCompare(String(b.customer)));
 
             filteredCheques.forEach(c => {
                 if (c.balance > 0) {
@@ -484,7 +570,7 @@
                 
                 let htmlContent = `
                     <td rowspan="${rowSpanCount}" class="font-medium text-white">${c.rep}<br><span class="text-gray-500 text-[10px]">${c.manager}</span></td>
-                    <td rowspan="${rowSpanCount}" class="text-gray-200">${c.customer}</td>
+                    <td rowspan="${rowSpanCount}" class="text-gray-200 font-bold">${c.customer}</td>
                     <td rowspan="${rowSpanCount}" class="text-center font-mono text-gray-400">${c.chq_date ? c.chq_date.split('T')[0] : ''}</td>
                     <td rowspan="${rowSpanCount}" class="text-center font-mono text-white font-bold">${c.chq_no}</td>
                     <td rowspan="${rowSpanCount}" class="text-right font-semibold text-blue-400">රු. ${c.amount.toLocaleString()}</td>
@@ -504,7 +590,6 @@
                     const isBounced = firstPay.remarks && firstPay.remarks.includes("BOUNCED");
                     if(isBounced) tr.classList.add('bounced-line');
 
-                    // Bounce button config inject mapping
                     let bounceBtn = (firstPay.method === 'Cheque' && !isBounced) ? 
                         `<button onclick="markPaymentAsBounced('${c.id}', 0)" class="no-print ml-1 text-red-500 hover:text-red-400" title="Mark as Bounced"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
 
