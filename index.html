@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everest Hardware - Return Cheque Network (Manual Allocation Mode)</title>
+    <title>Everest Hardware - Return Cheque Network (High-Speed Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -312,7 +312,6 @@
             }
         });
 
-        // LIVE SELECTOR ENGINE: When Target Customer changes in Add Payment Form
         document.getElementById('targetCustomerSelect').addEventListener('change', () => { updateManualAllocUI(); });
         document.getElementById('payAmount').addEventListener('input', () => { updateRemainingCalculation(); });
 
@@ -324,7 +323,6 @@
 
             if(!customerName) { container.classList.add('hidden'); return; }
 
-            // Filter active pending cheques for this specific customer
             const pendingCheques = globalCheques.filter(c => String(c.customer) === String(customerName) && c.balance > 0);
 
             if(pendingCheques.length === 0) {
@@ -382,7 +380,7 @@
                 if(!inp.disabled) {
                     let val = parseFloat(inp.value) || 0;
                     const max = parseFloat(inp.dataset.max);
-                    if(val > max) { val = max; inp.value = max; } // Prevent allocation exceeding cheque balance
+                    if(val > max) { val = max; inp.value = max; }
                     totalAllocated += val;
                 }
             });
@@ -534,7 +532,7 @@
             alert("Return Cheque පද්ධතියට සාර්ථකව ඇතුළත් කරන ලදී!");
         });
 
-        // SUBMIT ENGINE: Manual Split Allocations Submission with Strict Limit Checks
+        // OPTIMISTIC UPDATE ENGINE FOR manual payments submission (HIGH SPEED + SAFETY NEST)
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -557,19 +555,56 @@
                 return;
             }
 
+            // 1. SAVE BACKUP OF CURRENT DATA (For Rollback Safety)
+            const backupCheques = JSON.parse(JSON.stringify(globalCheques));
+
+            // 2. HIGH SPEED UPDATE: Optimistic UI Updates (Update Frontend immediately)
+            allocations.forEach(alloc => {
+                const targetChq = globalCheques.find(c => String(c.id) === String(alloc.chqId));
+                if(targetChq) {
+                    targetChq.balance -= alloc.amount;
+                    if(!targetChq.history) targetChq.history = [];
+                    targetChq.history.push({
+                        date: document.getElementById('payDate').value,
+                        method: document.getElementById('payMethod').value,
+                        ref: document.getElementById('payRef').value,
+                        amount: alloc.amount,
+                        remarks: "Active"
+                    });
+                }
+            });
+
+            // Fast Render UI
+            renderChequeTable(globalCheques);
+            if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
+
+            // Reset form input immediately
+            const oldDate = document.getElementById('payDate').value;
+            const oldMethod = document.getElementById('payMethod').value;
+            const oldRef = document.getElementById('payRef').value;
+            
+            document.getElementById('paymentForm').reset(); 
+            document.getElementById('customerSearchInput').value = "";
+            document.getElementById('manualAllocSection').classList.add('hidden');
+
+            // 3. SECURE BACKGROUND CALL (Google Sheet saving)
             try {
                 const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
-                    action: "add_customer_payment", received_date: document.getElementById('payDate').value,
-                    payment_method: document.getElementById('payMethod').value, ref_no: document.getElementById('payRef').value, 
+                    action: "add_customer_payment", received_date: oldDate,
+                    payment_method: oldMethod, ref_no: oldRef, 
                     allocations: allocations, user: currentSession.username
                 }) });
                 const responseData = await res.json();
-                alert(responseData.message);
-                document.getElementById('paymentForm').reset(); 
-                document.getElementById('customerSearchInput').value = "";
-                document.getElementById('manualAllocSection').classList.add('hidden');
+                
+                // Fetch fresh server data to sync state securely
                 fetchDataEngine();
-            } catch(err) { alert("ගෙවීම් යාවත්කාලීන කිරීමේදී දෝෂයක් සිදු විය: " + err.toString()); }
+            } catch(err) {
+                // 4. ERROR ROLLBACK NEST: Restore original state on server error
+                globalCheques = backupCheques;
+                renderChequeTable(globalCheques);
+                if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
+                alert("ගෙවීම් යාවත්කාලීන කිරීමේදී දෝෂයක් සිදු විය. පද්ධතිය පැරණි තත්ත්වයට පත් කරන ලදී: " + err.toString());
+            }
         });
 
         document.getElementById('custMasterForm').addEventListener('submit', async (e) => {
@@ -600,15 +635,41 @@
             });
         }
 
+        // OPTIMISTIC UPDATE FOR BOUNCED PAYMENTS (FAST & SAFE)
         async function markPaymentAsBounced(chequeId, paymentIndex) {
             if(!confirm("ඔබට සැබෑවටම මෙම Replacement Cheque එක Return (Bounce) වූ බව සටහන් කිරීමට අවශ්‍යද?")) return;
+            
+            // Backup
+            const backupCheques = JSON.parse(JSON.stringify(globalCheques));
+
+            // Optimistic Update
+            const targetChq = globalCheques.find(c => String(c.id) === String(chequeId));
+            if(targetChq && targetChq.history && targetChq.history[paymentIndex]) {
+                const payment = targetChq.history[paymentIndex];
+                if(!payment.remarks.includes("BOUNCED")) {
+                    payment.remarks = "BOUNCED";
+                    targetChq.balance += payment.amount; // Add back the amount to unpaid balance
+                }
+            }
+
+            // Quick display
+            renderChequeTable(globalCheques);
+            if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
+
             try {
                 const res = await fetch(API_URL, {
                     method: "POST",
                     body: JSON.stringify({ action: "bounce_payment", cheque_id: chequeId, payment_index: paymentIndex, user: currentSession.username })
                 });
-                const result = await res.json(); alert(result.message); fetchDataEngine();
-            } catch(e) { alert("Bounce කිරීමේදී දෝෂයක් සිදු විය."); }
+                const result = await res.json();
+                fetchDataEngine();
+            } catch(e) {
+                // Rollback
+                globalCheques = backupCheques;
+                renderChequeTable(globalCheques);
+                if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
+                alert("Bounce කිරීමේදී දෝෂයක් සිදු විය. පද්ධතිය පැරණි තත්ත්වයට පත් කරන ලදී.");
+            }
         }
 
         function calculateAndRenderLedgerReport() {
