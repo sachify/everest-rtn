@@ -20,11 +20,19 @@
         @media print {
             body { background-color: white; color: black; }
             .no-print { display: none !important; }
+            .print-block { display: block !important; }
             .card { background-color: white; border: none; box-shadow: none; }
             .ledger-table th { background-color: #f3f4f6 !important; color: black !important; border: 1px solid #6b7280; }
             .ledger-table td { border: 1px solid #6b7280; color: black !important; }
             .text-white, .text-gray-300, .text-gray-400 { color: black !important; }
-            .bg-gray-900\/50 { background: none !important; border: 1px solid #6b7280 !important; }
+            
+            /* 🔥 Print එකේදී Summary Table එක මුලින්ම පෙන්වීමට CSS Order ක්‍රමය */
+            .print-container { display: flex; flex-direction: column; }
+            #printSummaryArea { order: 1; margin-bottom: 30px; width: 100% !important; }
+            #printLedgerArea { order: 2; width: 100% !important; }
+            
+            .border, .border-gray-700, .border-gray-800 { border-color: #6b7280 !important; }
+            tr, td, th { color: black !important; background: transparent !important; }
         }
     </style>
 </head>
@@ -48,14 +56,16 @@
             <button id="logoutBtn" class="bg-red-900/40 text-red-400 border border-red-800 px-3 py-1 rounded-lg text-xs">Log Out</button>
         </nav>
 
-        <div class="hidden max-w-[95%] w-full mx-auto p-4 border-b border-gray-400 mb-4" id="printHeader">
+        <!-- Print Letterhead Header -->
+        <div class="hidden max-w-[95%] w-full mx-auto p-4 border-b-2 border-black mb-6" id="printHeader">
             <h1 class="text-2xl font-bold text-black text-center">EVEREST HARDWARE CO. (PVT) LTD.</h1>
-            <p class="text-center text-sm text-gray-600">Return Cheques Master Ledger Statement</p>
-            <p class="text-right text-xs text-gray-500 mt-2">Generated Date: <span id="printDateSpan"></span></p>
+            <p class="text-center text-sm text-gray-700 font-bold">Return Cheques Master Ledger Statement</p>
+            <p class="text-right text-xs text-gray-600 mt-2">Generated Date: <span id="printDateSpan"></span></p>
         </div>
 
-        <main class="p-4 max-w-[1600px] w-full mx-auto grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <main class="p-4 max-w-[1700px] w-full mx-auto grid grid-cols-1 xl:grid-cols-4 gap-6 print-container">
             
+            <!-- Left Sidebar Controls -->
             <div class="space-y-6 xl:col-span-1 no-print">
                 <div class="card p-1 rounded-xl flex flex-wrap gap-1">
                     <button id="tabNewBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-medium">New Return</button>
@@ -65,6 +75,7 @@
                     <button id="tabMasterBtn" class="flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium hidden">Admin Masters</button>
                 </div>
 
+                <!-- FORM: NEW RETURN CHEQUE -->
                 <div id="formNewBlock" class="card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">New Return Cheque Entry</h3>
                     <form id="chequeForm" class="space-y-3 text-xs">
@@ -90,11 +101,27 @@
                             <input type="text" id="chqNo" class="w-full p-2 rounded-lg" placeholder="Chq No" required>
                             <input type="date" id="chqDate" class="w-full p-2 rounded-lg" required>
                         </div>
+                        
+                        <!-- 🔥 🔥 අලුත් Return Reason Dropdown එක -->
+                        <div>
+                            <label class="block text-gray-400 mb-1">Return Reason</label>
+                            <select id="chqReturnReason" class="w-full p-2 rounded-lg" required>
+                                <option value="Refer to Drawer (Insufficient Funds)">Refer to Drawer (Insufficient Funds)</option>
+                                <option value="Account Closed">Account Closed</option>
+                                <option value="Effects Not Realized">Effects Not Realized</option>
+                                <option value="Representable (Please Present Again)">Representable (Please Present Again)</option>
+                                <option value="Payment Stopped by Drawer">Payment Stopped by Drawer</option>
+                                <option value="Post Dated">Post Dated</option>
+                                <option value="Signatures Differ">Signatures Differ</option>
+                            </select>
+                        </div>
+
                         <input type="number" id="chqAmount" class="w-full p-2 rounded-lg" placeholder="Amount (රු.)" required>
                         <button type="submit" class="w-full bg-blue-600 p-2 rounded-lg font-semibold text-white">Save Cheque</button>
                     </form>
                 </div>
 
+                <!-- FORM: ADD PAYMENT -->
                 <div id="formPayBlock" class="hidden card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Add Payment (Manual Mode)</h3>
                     <form id="paymentForm" class="space-y-3 text-xs">
@@ -110,8 +137,20 @@
                                 <option value="Cheque">Replacement Cheque</option>
                             </select>
                         </div>
+                        
+                        <!-- 🔥 පරණ සාමාන්‍ය Date එක Office Recovered Date ලෙස නම වෙනස් කිරීම -->
+                        <div>
+                            <label class="block text-gray-400 mb-1">Office Recovered Date</label>
+                            <input type="date" id="payDate" class="w-full p-2 rounded-lg" required>
+                        </div>
+
+                        <!-- 🔥 🔥 Replacement Cheque එකක් තේරුවොත් විතරක් මතුවන Dynamic Date එක -->
+                        <div id="replacementChqDateContainer" class="hidden">
+                            <label class="block text-amber-400 font-bold mb-1">Replacement Cheque Date</label>
+                            <input type="date" id="repChqDateInput" class="w-full p-2 rounded-lg border border-amber-800">
+                        </div>
+
                         <input type="text" id="payRef" class="w-full p-2 rounded-lg" placeholder="Receipt / Replacement Chq No" required>
-                        <input type="date" id="payDate" class="w-full p-2 rounded-lg" required>
                         <input type="number" id="payAmount" class="w-full p-2 rounded-lg" placeholder="Total Amount Received (රු.)" required>
                         
                         <div id="manualAllocSection" class="hidden border border-emerald-800/40 bg-emerald-950/5 rounded-lg p-2.5 space-y-2 mt-2">
@@ -127,6 +166,7 @@
                     </form>
                 </div>
 
+                <!-- FORM: CREATE CUSTOMER MASTER -->
                 <div id="formCustMasterBlock" class="hidden card rounded-xl p-5 space-y-4">
                     <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">Create Customer Master</h3>
                     <form id="custMasterForm" class="space-y-3 text-xs">
@@ -148,6 +188,7 @@
                     </form>
                 </div>
 
+                <!-- FORM: ADMIN MASTERS MANAGING -->
                 <div id="formMasterBlock" class="hidden card rounded-xl p-5 space-y-4 border border-purple-900/40 bg-purple-950/5">
                     <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-folder-plus"></i> Add Manager / Rep Master</h3>
                     <div class="space-y-3 text-xs">
@@ -164,7 +205,7 @@
                         </div>
                         <div>
                             <label class="block text-gray-400 mb-1">නම (Name)</label>
-                            <input type="text" id="masterNameInput" class="w-full p-2 rounded-lg" placeholder="Enter Name here...">
+                            <input type="text" id="masterNameInput" class="w-full p-2 rounded-lg" placeholder="Enter Name here..." required>
                         </div>
                         <button id="saveMasterBtn" type="button" class="w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg font-semibold">Save Master Record</button>
                     </div>
@@ -175,14 +216,15 @@
                 </div>
             </div>
 
-            <div class="xl:col-span-3 space-y-6">
-                <!-- 🔥 කහ කොටුව පවතින ස්ථානය: දැන් මෙතනට Dropdown එකක් සහ Excel Summary Report එක එකතු කර ඇත -->
-                <div id="registryTableBlock" class="card p-5 rounded-xl space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-700 pb-3">
-                        <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie"></i> Return Chq Total Summary (Live)
+            <!-- Right Workspace Data Blocks -->
+            <div class="xl:col-span-3 space-y-6 flex flex-col">
+                
+                <!-- 🔥 [1. LIVE & PRINT SUMMARY AREA] - ඔයා කහ පාටින් ඉල්ලපු, පසුව Print එකටත් සකස් කරපු කොටස -->
+                <div id="printSummaryArea" class="card p-5 rounded-xl space-y-4 w-full">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-700 pb-3 print:border-black">
+                        <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2 print:text-black">
+                            <i class="fa-solid fa-chart-pie"></i> Return Chq Total Summary
                         </h3>
-                        <!-- Area Manager Dropdown Selector -->
                         <div class="flex items-center gap-2 text-xs no-print">
                             <label class="text-gray-400 whitespace-nowrap">Filter Area Manager:</label>
                             <select id="dashboardManagerFilter" class="p-1.5 rounded bg-gray-900 border border-gray-700 text-white focus:border-cyan-500 font-medium">
@@ -191,27 +233,24 @@
                         </div>
                     </div>
                     
-                    <!-- Excel Style Summary Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs border-collapse">
                             <thead>
-                                <tr class="bg-gray-800 text-gray-200 border border-gray-700 font-bold text-center">
+                                <tr class="bg-gray-800 text-gray-200 border border-gray-700 font-bold text-center print:bg-gray-100 print:text-black">
                                     <th class="p-2 border border-gray-700 w-16">#</th>
                                     <th class="p-2 border border-gray-700 text-left">Rep Name</th>
                                     <th class="p-2 border border-gray-700 text-right pr-6">Amount (රු.)</th>
                                 </tr>
                             </thead>
-                            <tbody id="managerSummaryTableBody" class="font-sans">
-                                <!-- JavaScript මඟින් Live ඩේටා මෙතනට ජනනය කරයි -->
-                            </tbody>
+                            <tbody id="managerSummaryTableBody" class="font-sans print:text-black"></tbody>
                         </table>
                     </div>
 
-                    <!-- පැරණි Registry Table එක (අවශ්‍ය නම් පහළින් බලාගැනීමට හැකි වන සේ කුඩාවට තබා ඇත) -->
+                    <!-- Expandable Raw Registry List -->
                     <div class="pt-4 border-t border-gray-800 no-print">
                         <details class="cursor-pointer group">
-                            <summary class="text-xs text-gray-400 font-medium hover:text-white transition-colors select-none list-none flex items-center gap-1">
-                                <i class="fa-solid fa-chevron-right group-open:rotate-90 transition-transform"></i> View Raw Cheques Registry (${globalCheques.length})
+                            <summary id="rawRegistrySummaryTitle" class="text-xs text-gray-400 font-medium hover:text-white transition-colors select-none list-none flex items-center gap-1">
+                                <i class="fa-solid fa-chevron-right group-open:rotate-90 transition-transform"></i> View Raw Cheques Registry
                             </summary>
                             <div class="overflow-x-auto mt-3">
                                 <table class="w-full text-left text-[11px]">
@@ -230,7 +269,8 @@
                     </div>
                 </div>
 
-                <div id="reportsInterfaceBlock" class="hidden space-y-6">
+                <!-- [2. DETAILED LEDGER REPORT BLOCK] -->
+                <div id="reportsInterfaceBlock" class="hidden space-y-6 w-full">
                     <div class="card p-4 rounded-xl no-print">
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                             <div class="bg-gray-900/50 p-2 rounded border border-gray-800"><div class="text-[10px] text-gray-400">0 - 30 Days</div><div id="ageing0_30" class="text-xs font-bold text-white">රු. 0</div></div>
@@ -250,31 +290,33 @@
                         <button onclick="triggerPrintPreview()" class="ml-auto bg-cyan-600 hover:bg-cyan-700 text-white font-semibold px-4 py-1.5 rounded-lg shadow-md"><i class="fa-solid fa-print"></i> Print Full Sheet</button>
                     </div>
 
-                    <!-- පරණ මුල්ම Detailed Ledger Report එක (එලෙසම පවතී) -->
-                    <div class="card p-5 rounded-xl bg-[#161b22]">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-3"><i class="fa-solid fa-list-check"></i> Detailed Return Ledger</h4>
+                    <!-- Detailed Table Box Area -->
+                    <div id="printLedgerArea" class="card p-5 rounded-xl bg-[#161b22] w-full print:border-none print:p-0">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-3 print:text-black"><i class="fa-solid fa-list-check"></i> Detailed Return Ledger</h4>
                         <div class="overflow-x-auto">
                             <table class="w-full ledger-table text-left border-collapse">
                                 <thead>
                                     <tr>
                                         <th rowspan="2" class="p-2">Rep / Manager</th>
-                                        <th colspan="4" class="p-1 bg-blue-950/40">Return Cheque Details</th>
-                                        <th colspan="5" class="p-1 bg-emerald-950/40">Payment Received Details (Manual Split Mapping)</th>
+                                        <!-- 🔥 Return Cheque Details වල colspan එක 5ක් කළා (Reason එක එකතු වුණු නිසා) -->
+                                        <th colspan="5" class="p-1 bg-blue-950/40 print:bg-gray-100">Return Cheque Details</th>
+                                        <th colspan="5" class="p-1 bg-emerald-950/40 print:bg-gray-100">Payment Received Details</th>
                                         <th rowspan="2" class="p-2">Net Balance</th>
                                     </tr>
                                     <tr>
                                         <th class="p-1">Customers</th>
                                         <th class="p-1">Chq. Date</th>
                                         <th class="p-1">Chq. No.</th>
+                                        <th class="p-1 text-amber-400 font-bold print:text-black">Return Reason</th> <!-- 🔥 අලුත් Column එක -->
                                         <th class="p-1">Amount</th>
                                         <th class="p-1">Rec. Date</th>
                                         <th class="p-1">Cash</th>
-                                        <th class="p-1">Chq (Ref/No)</th>
+                                        <th class="p-1">Chq (Ref/No / Date)</th> <!-- 🔥 Replacement Chq Date එකත් මෙතන පෙන්වයි -->
                                         <th class="p-1">Status Remarks</th>
                                         <th class="p-1">Paid Amount</th>
                                     </tr>
                                 </thead>
-                                <tbody id="ledgerReportTableBody"></tbody>
+                                <tbody id="ledgerReportTableBody" class="print:text-black"></tbody>
                             </table>
                         </div>
                     </div>
@@ -284,7 +326,8 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbz_PG0sLpt23Av0gyWfLaXO1CbxaCigZYqV1v8JDFPVu4xR7nHlcMBc_453RLAxBfN6/exec";
+        // ⚠️ ඔයාගේ අලුත්ම Google Web App URL එක මෙතනට Replace කරන්න
+        const API_URL = "https://script.google.com/macros/s/AKfycbwlU55YVjJd225lU7Q8B94kS13kMP2VLV_BBlv8KKeyGauw3vLcsnaFAqNSxL3Xl53j/exec";
         let currentSession = null;
         let globalCheques = [];
         let globalMasters = [];
@@ -300,25 +343,48 @@
         const formPayBlock = document.getElementById('formPayBlock');
         const formCustMasterBlock = document.getElementById('formCustMasterBlock');
         const formMasterBlock = document.getElementById('formMasterBlock');
-        const registryTableBlock = document.getElementById('registryTableBlock');
+        const printSummaryArea = document.getElementById('printSummaryArea');
         const reportsInterfaceBlock = document.getElementById('reportsInterfaceBlock');
 
+        // Tabs Triggers
         tabNewBtn.addEventListener('click', () => { setTabActive(formNewBlock, tabNewBtn, 'bg-blue-600', false); });
         tabPayBtn.addEventListener('click', () => { setTabActive(formPayBlock, tabPayBtn, 'bg-emerald-600', false); updateManualAllocUI(); });
         tabCustMasterBtn.addEventListener('click', () => { setTabActive(formCustMasterBlock, tabCustMasterBtn, 'bg-amber-600', false); });
         tabMasterBtn.addEventListener('click', () => { setTabActive(formMasterBlock, tabMasterBtn, 'bg-purple-600', false); });
         tabReportBtn.addEventListener('click', () => { setTabActive(null, tabReportBtn, 'bg-cyan-600', true); calculateAndRenderLedgerReport(); });
-        document.getElementById('reportRepFilter').addEventListener('change', () => { calculateAndRenderLedgerReport(); });
         
-        // 🔥 Dashboard එකේ Dropdown එක වෙනස් වන විට Summary එක Live Update වීමේ Event එක
+        document.getElementById('reportRepFilter').addEventListener('change', () => { calculateAndRenderLedgerReport(); });
         document.getElementById('dashboardManagerFilter').addEventListener('change', () => { renderManagerWiseSummaryTable(); });
+
+        // 🔥 Payment Method එක Cheque කරපු ගමන් අලුත් Date Field එක පෙන්වන Event එක
+        document.getElementById('payMethod').addEventListener('change', (e) => {
+            const container = document.getElementById('replacementChqDateContainer');
+            const input = document.getElementById('repChqDateInput');
+            if (e.target.value === 'Cheque') {
+                container.classList.remove('hidden');
+                input.required = true;
+            } else {
+                container.classList.add('hidden');
+                input.required = false;
+                input.value = "";
+            }
+        });
 
         function setTabActive(activeBlock, activeTab, activeClass, isReportMode) {
             [formNewBlock, formPayBlock, formCustMasterBlock, formMasterBlock].forEach(b => b.classList.add('hidden'));
             [tabNewBtn, tabPayBtn, tabCustMasterBtn, tabReportBtn, tabMasterBtn].forEach(t => { t.className = "flex-1 text-gray-400 py-2 rounded-lg text-xs font-medium"; });
             activeTab.className = `flex-1 ${activeClass} text-white py-2 rounded-lg text-xs font-medium`;
-            if(isReportMode) { registryTableBlock.classList.add('hidden'); reportsInterfaceBlock.classList.remove('hidden'); } 
-            else { if(activeBlock) activeBlock.classList.remove('hidden'); registryTableBlock.classList.remove('hidden'); reportsInterfaceBlock.classList.add('hidden'); }
+            
+            if(isReportMode) {
+                printSummaryArea.classList.remove('w-full');
+                printSummaryArea.classList.add('hidden'); // Screen එකේදී Summary එක වහනවා Report එක විතරක් පෙන්වන්න
+                reportsInterfaceBlock.classList.remove('hidden');
+            } else {
+                printSummaryArea.classList.remove('hidden');
+                printSummaryArea.classList.add('w-full');
+                if(activeBlock) activeBlock.classList.remove('hidden');
+                reportsInterfaceBlock.classList.add('hidden');
+            }
         }
 
         document.getElementById('masterTypeSelector').addEventListener('change', (e) => {
@@ -364,11 +430,10 @@
             listBody.innerHTML = "";
 
             if(!customerName) { container.classList.add('hidden'); return; }
-
             const pendingCheques = globalCheques.filter(c => String(c.customer) === String(customerName) && c.balance > 0);
 
             if(pendingCheques.length === 0) {
-                listBody.innerHTML = `<div class="text-gray-500 text-[11px] py-1">මෙම පාරිභෝගිකයාට හිඟ චෙක්පත් කිසිවක් නැත.</div>`;
+                listBody.innerHTML = `<div class="text-gray-500 text-[11px] py-1">හිඟ චෙක්පත් කිසිවක් නැත.</div>`;
                 container.classList.remove('hidden');
                 updateRemainingCalculation();
                 return;
@@ -378,13 +443,13 @@
                 const row = document.createElement('div');
                 row.className = "flex items-center gap-2 bg-gray-900/60 p-2 rounded border border-gray-800 text-[11px]";
                 row.innerHTML = `
-                    <input type="checkbox" id="chk_${chq.id}" class="w-3.5 h-3.5 rounded bg-gray-900 border-gray-700 text-emerald-600 focus:ring-0 cursor-pointer" onchange="toggleAllocInput('${chq.id}')">
+                    <input type="checkbox" id="chk_${chq.id}" class="w-3.5 h-3.5 rounded bg-gray-900 border-gray-700 text-emerald-600 cursor-pointer" onchange="toggleAllocInput('${chq.id}')">
                     <div class="flex-1 min-w-0">
                         <div class="text-white font-mono font-bold truncate">${chq.chq_no}</div>
                         <div class="text-gray-400 text-[10px]">Bal: රු. ${chq.balance.toLocaleString()}</div>
                     </div>
                     <input type="number" id="amt_${chq.id}" data-chqid="${chq.id}" data-max="${chq.balance}" disabled 
-                        class="w-24 p-1 text-right rounded bg-[#0d1117] border border-gray-700 text-white font-medium focus:border-emerald-500 text-[11px]" 
+                        class="w-24 p-1 text-right rounded bg-[#0d1117] border border-gray-700 text-white font-medium text-[11px]" 
                         placeholder="0" oninput="updateRemainingCalculation()">
                 `;
                 listBody.appendChild(row);
@@ -430,10 +495,7 @@
             const remaining = totalReceived - totalAllocated;
             document.getElementById('allocatedLabelTotal').innerText = `රු. ${totalAllocated.toLocaleString()}`;
             document.getElementById('remainingLabelTotal').innerText = `රු. ${remaining.toLocaleString()}`;
-            
-            const remLabel = document.getElementById('remainingLabelTotal');
-            if(remaining < 0) { remLabel.className = "font-bold text-red-400"; } 
-            else { remLabel.className = "font-bold text-emerald-400"; }
+            document.getElementById('remainingLabelTotal').className = remaining < 0 ? "font-bold text-red-400" : "font-bold text-emerald-400";
         }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -451,7 +513,7 @@
                     if(data.role === 'admin') tabMasterBtn.classList.remove('hidden');
                     fetchDataEngine();
                 } else { document.getElementById('loginError').classList.remove('hidden'); }
-            } catch (err) { alert("API Error: " + err.toString()); }
+            } catch (err) { alert("API Login Error: " + err.toString()); }
         });
 
         async function fetchDataEngine() {
@@ -467,18 +529,15 @@
                 rebuildCustomerDropdowns(globalCustomers);
                 renderMasterAdminList(globalMasters);
                 populateReportFilterDropdown(globalMasters);
-                
-                // 🔥 Live Engine එකෙන් දත්ත පැමිණි විගස ඩෑෂ්බෝඩ් එකේ Summary වගුව යාවත්කාලීන කරයි
                 renderManagerWiseSummaryTable();
 
                 if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
-            } catch (err) { console.error("Error matrix stream:", err); }
+            } catch (err) { console.error("Data Engine Matrix Error:", err); }
         }
 
         function populateReportFilterDropdown(masters) {
             const filterDropdown = document.getElementById('reportRepFilter');
             const dashFilterDropdown = document.getElementById('dashboardManagerFilter');
-            
             const currentVal = filterDropdown.value;
             const currentDashVal = dashFilterDropdown.value;
             
@@ -488,8 +547,6 @@
             masters.forEach(m => {
                 const opt = document.createElement('option'); opt.value = m.value; opt.innerText = `${m.type}: ${m.value}`;
                 filterDropdown.appendChild(opt);
-                
-                // Dashboard Dropdown එකට Managers ලාව පමණක් එකතු කිරීම
                 if(m.type === 'Manager') {
                     const optDash = document.createElement('option'); optDash.value = m.value; optDash.innerText = m.value;
                     dashFilterDropdown.appendChild(optDash);
@@ -509,13 +566,11 @@
             newCustRepSelect.innerHTML = `<option value="">Select Rep</option>`;
             
             masters.filter(m => m.type === 'Manager').forEach(mgr => {
-                const opt1 = document.createElement('option'); opt1.value = mgr.value; opt1.innerText = mgr.value;
-                const opt2 = document.createElement('option'); opt2.value = mgr.value; opt2.innerText = mgr.value;
-                mgrSelect.appendChild(opt1); adminParentSelect.appendChild(opt2);
+                mgrSelect.appendChild(new Option(mgr.value, mgr.value));
+                adminParentSelect.appendChild(new Option(mgr.value, mgr.value));
             });
             masters.filter(m => m.type === 'Rep').forEach(rep => {
-                const opt3 = document.createElement('option'); opt3.value = rep.value; opt3.innerText = rep.value;
-                newCustRepSelect.appendChild(opt3);
+                newCustRepSelect.appendChild(new Option(rep.value, rep.value));
             });
         }
 
@@ -530,11 +585,9 @@
             const lowerFilter = filterText.toLowerCase().trim();
             
             customers.forEach(c => {
-                const opt1 = document.createElement('option'); opt1.value = c.name; opt1.innerText = `${c.name} (${c.area})`;
-                entrySelect.appendChild(opt1);
+                entrySelect.appendChild(new Option(`${c.name} (${c.area})`, c.name));
                 if(filterText === "" || c.name.toLowerCase().includes(lowerFilter) || c.area.toLowerCase().includes(lowerFilter)) {
-                    const opt2 = document.createElement('option'); opt2.value = c.name; opt2.innerText = `${c.name} (${c.area})`;
-                    paymentSelect.appendChild(opt2);
+                    paymentSelect.appendChild(new Option(`${c.name} (${c.area})`, c.name));
                 }
             });
             if(prevEntryVal) entrySelect.value = prevEntryVal;
@@ -580,20 +633,23 @@
             fetchDataEngine();
         }
 
+        // Action: Submit New Return Cheque
         document.getElementById('chequeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            // 🔥 Return Reason එකත් එකතු කරලා Backend එකට යැවීම
             await fetch(API_URL, { method: "POST", body: JSON.stringify({
                 action: "add_cheque", manager_name: document.getElementById('mgrSelect').value, rep_name: document.getElementById('repSelect').value,
                 return_account: "Return Account", customer_name: document.getElementById('custMasterSelect').value, cheque_date: document.getElementById('chqDate').value,
-                cheque_no: document.getElementById('chqNo').value, amount: document.getElementById('chqAmount').value, user: currentSession.username
+                cheque_no: document.getElementById('chqNo').value, amount: document.getElementById('chqAmount').value, 
+                return_reason: document.getElementById('chqReturnReason').value, user: currentSession.username
             }) });
             document.getElementById('chequeForm').reset(); fetchDataEngine();
-            alert("Return Cheque පද්ධතියට සාර්ථකව ඇතුළත් කරන ලදී!");
+            alert("Return Cheque එක හේතුව සමඟ සාර්ථකව පද්ධතියට ඇතුළත් කරන ලදී!");
         });
 
+        // Action: Submit Customer Payment
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const totalReceived = parseFloat(document.getElementById('payAmount').value) || 0;
             let allocations = [];
             let totalAllocated = 0;
@@ -601,20 +657,18 @@
             document.querySelectorAll('#pendingChequesAllocList input[type="number"]').forEach(inp => {
                 if(!inp.disabled) {
                     const val = parseFloat(inp.value) || 0;
-                    if(val > 0) {
-                        allocations.push({ chqId: inp.dataset.chqid, amount: val });
-                        totalAllocated += val;
-                    }
+                    if(val > 0) { allocations.push({ chqId: inp.dataset.chqid, amount: val }); totalAllocated += val; }
                 }
             });
 
             if(totalAllocated > totalReceived) {
-                alert(`ඇතුළත් කිරීම ප්‍රතික්ෂේප විය! ඔබ චෙක්පත්වලට වෙන් කළ මුළු මුදල (රු. ${totalAllocated.toLocaleString()}) පාරිභෝගිකයාගෙන් ලැබුණු මුළු මුදලට (රු. ${totalReceived.toLocaleString()}) වඩා වැඩි විය නොහැක.`);
+                alert(`ඇතුළත් කිරීම ප්‍රතික්ෂේප විය! වෙන් කළ මුළු මුදල ලැබුණු මුදලට වඩා වැඩි විය නොහැක.`);
                 return;
             }
 
             const backupCheques = JSON.parse(JSON.stringify(globalCheques));
-
+            
+            // UI Optimistic UI Update
             allocations.forEach(alloc => {
                 const targetChq = globalCheques.find(c => String(c.id) === String(alloc.chqId));
                 if(targetChq) {
@@ -625,7 +679,8 @@
                         method: document.getElementById('payMethod').value,
                         ref: document.getElementById('payRef').value,
                         amount: alloc.amount,
-                        remarks: "Active"
+                        remarks: "Active",
+                        rep_chq_date: document.getElementById('repChqDateInput').value || ""
                     });
                 }
             });
@@ -637,25 +692,26 @@
             const oldDate = document.getElementById('payDate').value;
             const oldMethod = document.getElementById('payMethod').value;
             const oldRef = document.getElementById('payRef').value;
+            const oldRepChqDate = document.getElementById('repChqDateInput').value;
             
             document.getElementById('paymentForm').reset(); 
             document.getElementById('customerSearchInput').value = "";
             document.getElementById('manualAllocSection').classList.add('hidden');
+            document.getElementById('replacementChqDateContainer').classList.add('hidden');
 
             try {
-                const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({
+                await fetch(API_URL, { method: "POST", body: JSON.stringify({
                     action: "add_customer_payment", received_date: oldDate,
-                    payment_method: oldMethod, ref_no: oldRef, 
+                    payment_method: oldMethod, ref_no: oldRef, rep_cheque_date: oldRepChqDate,
                     allocations: allocations, user: currentSession.username
                 }) });
-                const responseData = await res.json();
                 fetchDataEngine();
             } catch(err) {
                 globalCheques = backupCheques;
                 renderChequeTable(globalCheques);
                 renderManagerWiseSummaryTable();
                 if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
-                alert("ගෙවීම් යාවත්කාලීන කිරීමේදී දෝෂයක් සිදු විය. පද්ධතිය පැරණි තත්ත්වයට පත් කරන ලදී: " + err.toString());
+                alert("ගෙවීම් යාවත්කාලීන කිරීමේදී දෝෂයක් සිදු විය: " + err.toString());
             }
         });
 
@@ -666,7 +722,7 @@
                 area: document.getElementById('newCustArea').value.trim(), rep: document.getElementById('newCustRepSelect').value
             })});
             document.getElementById('custMasterForm').reset(); fetchDataEngine();
-            alert("නව Customer Master එක අදාළ Sales Rep සමඟ සාර්ථකව සුරක්ෂිත කරන ලදී!");
+            alert("නව Customer Master එක සාර්ථකව සුරක්ෂිත කරන ලදී!");
         });
 
         document.getElementById('saveMasterBtn').addEventListener('click', async () => {
@@ -680,6 +736,7 @@
 
         function renderChequeTable(cheques) {
             const body = document.getElementById('chequeTableBody'); body.innerHTML = "";
+            document.getElementById('rawRegistrySummaryTitle').innerHTML = `<i class="fa-solid fa-chevron-right group-open:rotate-90 transition-transform"></i> View Raw Cheques Registry (${cheques.length})`;
             cheques.forEach(c => {
                 const tr = document.createElement('tr'); tr.className = "border-b border-gray-800 hover:bg-gray-800/30";
                 tr.innerHTML = `<td class="p-1.5 font-mono text-white">${c.chq_no}</td><td class="p-1.5">${c.customer}</td><td class="p-1.5 text-gray-400">${c.manager} / ${c.rep}</td><td class="p-1.5 text-right font-semibold text-emerald-400">රු. ${c.balance.toLocaleString()}</td>`;
@@ -693,34 +750,24 @@
             const targetChq = globalCheques.find(c => String(c.id) === String(chequeId));
             if(targetChq && targetChq.history && targetChq.history[paymentIndex]) {
                 const payment = targetChq.history[paymentIndex];
-                if(!payment.remarks.includes("BOUNCED")) {
-                    payment.remarks = "BOUNCED";
-                    targetChq.balance += payment.amount;
-                }
+                if(!payment.remarks.includes("BOUNCED")) { payment.remarks = "BOUNCED"; targetChq.balance += payment.amount; }
             }
-            renderChequeTable(globalCheques);
-            renderManagerWiseSummaryTable();
+            renderChequeTable(globalCheques); renderManagerWiseSummaryTable();
             if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
 
             try {
-                const res = await fetch(API_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "bounce_payment", cheque_id: chequeId, payment_index: paymentIndex, user: currentSession.username })
-                });
-                const result = await res.json();
+                await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "bounce_payment", cheque_id: chequeId, payment_index: paymentIndex, user: currentSession.username }) });
                 fetchDataEngine();
             } catch(e) {
-                globalCheques = backupCheques;
-                renderChequeTable(globalCheques);
-                renderManagerWiseSummaryTable();
+                globalCheques = backupCheques; renderChequeTable(globalCheques); renderManagerWiseSummaryTable();
                 if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
-                alert("Bounce කිරීමේදී දෝෂයක් සිදු විය. පද්ධතිය පැරණි තත්ත්වයට පත් කරන ලදී.");
+                alert("Bounce කිරීමේදී දෝෂයක් සිදු විය.");
             }
         }
 
+        // Render detailed report
         function calculateAndRenderLedgerReport() {
-            const tableBody = document.getElementById('ledgerReportTableBody');
-            tableBody.innerHTML = "";
+            const tableBody = document.getElementById('ledgerReportTableBody'); tableBody.innerHTML = "";
             const filterValue = document.getElementById('reportRepFilter').value;
             let ageing = { zero_30: 0, thirty1_60: 0, sixty1_90: 0, ninety_plus: 0 };
             const today = new Date();
@@ -731,10 +778,9 @@
             });
 
             if(filteredCheques.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="11" class="p-4 text-center text-gray-500">වාර්තා කිසිවක් හමුනොවීය.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">වාර්තා කිසිවක් හමුනොවීය.</td></tr>`;
                 return;
             }
-
             filteredCheques.sort((a,b) => String(a.customer).localeCompare(String(b.customer)));
 
             filteredCheques.forEach(c => {
@@ -751,11 +797,13 @@
                 const rowSpanCount = history.length > 0 ? history.length : 1;
                 const tr = document.createElement('tr'); tr.className = "hover:bg-gray-800/20";
                 
+                // 🔥 HTML එකේ Return Reason Column එක මෙතනට පිරිසිදුවටම දමා ඇත
                 let htmlContent = `
                     <td rowspan="${rowSpanCount}" class="font-medium text-white">${c.rep}<br><span class="text-gray-500 text-[10px]">${c.manager}</span></td>
                     <td rowspan="${rowSpanCount}" class="text-gray-200 font-bold">${c.customer}</td>
                     <td rowspan="${rowSpanCount}" class="text-center font-mono text-gray-400">${c.chq_date ? c.chq_date.split('T')[0] : ''}</td>
                     <td rowspan="${rowSpanCount}" class="text-center font-mono text-white font-bold">${c.chq_no}</td>
+                    <td rowspan="${rowSpanCount}" class="text-center text-amber-400 font-medium">${c.return_reason || 'Not Specified'}</td>
                     <td rowspan="${rowSpanCount}" class="text-right font-semibold text-blue-400">රු. ${c.amount.toLocaleString()}</td>
                 `;
 
@@ -774,10 +822,13 @@
                     let bounceBtn = (firstPay.method === 'Cheque' && !isBounced) ? 
                         `<button onclick="markPaymentAsBounced('${c.id}', 0)" class="no-print ml-1 text-red-500 hover:text-red-400"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
 
+                    // 🔥 Replacement Chq Date එකක් තිබේ නම් Ref No එක සමඟ පෙන්වයි
+                    let chqDateStr = (firstPay.method === 'Cheque' && firstPay.rep_chq_date) ? `<br><span class="text-amber-400 font-bold text-[9px]">Chq Date: ${firstPay.rep_chq_date.split('T')[0]}</span>` : '';
+
                     htmlContent += `
                         <td class="text-center font-mono text-gray-400">${firstPay.date ? firstPay.date.split('T')[0] : ''}</td>
                         <td class="text-center text-xs text-emerald-400">${firstPay.method === 'Cash' ? '✔ Cash' : ''}</td>
-                        <td class="text-center font-mono text-xs">${firstPay.method === 'Cheque' ? `✔ Chq: ${firstPay.ref || ''} ${bounceBtn}` : '-'}</td>
+                        <td class="text-center font-mono text-xs">${firstPay.method === 'Cheque' ? `✔ Chq: ${firstPay.ref || ''} ${chqDateStr} ${bounceBtn}` : '-'}</td>
                         <td class="text-center font-medium ${isBounced ? 'text-red-400 font-bold' : 'text-gray-400'}">${firstPay.method === 'Cash' ? (firstPay.ref || 'Receipt') : (isBounced ? '❌ BOUNCED' : 'Active')}</td>
                         <td class="text-right font-medium ${isBounced ? 'line-through text-gray-500' : 'text-emerald-400'}">රු. ${firstPay.amount.toLocaleString()}</td>
                         <td rowspan="${rowSpanCount}" class="text-right font-bold ${c.balance <= 0 ? 'text-emerald-500 bg-emerald-950/10' : 'text-red-400 bg-red-950/10'}">රු. ${c.balance.toLocaleString()}</td>
@@ -792,10 +843,12 @@
                         let subBounceBtn = (pay.method === 'Cheque' && !subIsBounced) ? 
                             `<button onclick="markPaymentAsBounced('${c.id}', ${i})" class="no-print ml-1 text-red-500 hover:text-red-400"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
 
+                        let subChqDateStr = (pay.method === 'Cheque' && pay.rep_chq_date) ? `<br><span class="text-amber-400 font-bold text-[9px]">Chq Date: ${pay.rep_chq_date.split('T')[0]}</span>` : '';
+
                         subTr.innerHTML = `
                             <td class="text-center font-mono text-gray-400">${pay.date ? pay.date.split('T')[0] : ''}</td>
                             <td class="text-center text-xs text-emerald-400">${pay.method === 'Cash' ? '✔ Cash' : ''}</td>
-                            <td class="text-center font-mono text-xs">${pay.method === 'Cheque' ? `✔ Chq: ${pay.ref || ''} ${subBounceBtn}` : '-'}</td>
+                            <td class="text-center font-mono text-xs">${pay.method === 'Cheque' ? `✔ Chq: ${pay.ref || ''} ${subChqDateStr} ${subBounceBtn}` : '-'}</td>
                             <td class="text-center font-medium ${subIsBounced ? 'text-red-400 font-bold' : 'text-gray-400'}">${pay.method === 'Cash' ? (pay.ref || 'Receipt') : (subIsBounced ? '❌ BOUNCED' : 'Active')}</td>
                             <td class="text-right font-medium ${subIsBounced ? 'line-through text-gray-500' : 'text-emerald-400'}">රු. ${pay.amount.toLocaleString()}</td>
                         `;
@@ -810,46 +863,36 @@
             document.getElementById('ageing90_plus').innerText = `රු. ${ageing.ninety_plus.toLocaleString()}`;
         }
 
-        // 🔥 EXCEL SUMMARY ENGINE: ඩෑෂ්බෝඩ් එකේ Dropdown එකට අනුව Area Manager-wise දත්ත පෙරීම සිදුකරයි.
+        // Render Dashboard Manager Summary Table (Excel Style)
         function renderManagerWiseSummaryTable() {
             const summaryBody = document.getElementById('managerSummaryTableBody');
             summaryBody.innerHTML = "";
-            
-            // Dropdown එකෙන් තෝරාගෙන ඇති Manager ගේ නම ලබාගැනීම
             const selectedManagerFilter = document.getElementById('dashboardManagerFilter').value;
 
-            // 1. Structure Initialization
             let structure = {};
-            
             globalMasters.filter(m => m.type === 'Rep').forEach(r => {
                 const mgrName = r.parent || "Unassigned Managers";
-                // බාහිර Dropdown එක ALL නම් හෝ අදාළ Manager සිලෙක්ට් කර ඇත්නම් පමණක් ව්‍යුහයට ඇතුළත් කරන්න
                 if (selectedManagerFilter === "ALL" || mgrName === selectedManagerFilter) {
                     if (!structure[mgrName]) structure[mgrName] = {};
                     structure[mgrName][r.value] = 0;
                 }
             });
 
-            // 2. Aggregate Pending Cheques Balances
             globalCheques.forEach(c => {
                 const mgr = c.manager || "Unassigned Managers";
                 const rep = c.rep || "Unknown Rep";
-                
                 if (selectedManagerFilter === "ALL" || mgr === selectedManagerFilter) {
                     if (!structure[mgr]) structure[mgr] = {};
                     if (structure[mgr][rep] === undefined) structure[mgr][rep] = 0;
-                    
                     structure[mgr][rep] += parseFloat(c.balance) || 0;
                 }
             });
 
             let grandTotalReturnAmount = 0;
-
-            // 3. Render HTML Rows
             const sortedManagers = Object.keys(structure).sort();
 
             if(sortedManagers.length === 0) {
-                summaryBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-medium">මෙම Area Manager යටතේ කිසිදු දත්තයක් හමුනොවීය.</td></tr>`;
+                summaryBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-medium">කිසිදු දත්තයක් හමුනොවීය.</td></tr>`;
                 return;
             }
 
@@ -859,43 +902,34 @@
                 let managerSubTotal = 0;
                 let activeRepCount = 1;
 
-                const sortedReps = Object.keys(repsObject).sort();
-
-                sortedReps.forEach(repName => {
+                Object.keys(repsObject).sort().forEach(repName => {
                     const repAmt = repsObject[repName];
-                    managerSubTotal += repAmt;
-                    grandTotalReturnAmount += repAmt;
-
+                    managerSubTotal += repAmt; grandTotalReturnAmount += repAmt;
                     const displayAmt = repAmt > 0 ? repAmt.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : "-";
 
                     repRowsHTML += `
-                        <tr class="hover:bg-gray-800/40 border-b border-gray-800">
-                            <td class="p-2 border border-gray-700 text-center text-gray-400 font-mono">${activeRepCount}</td>
-                            <td class="p-2 border border-gray-700 text-gray-300 font-medium pl-4">${repName}</td>
-                            <td class="p-2 border border-gray-700 text-right pr-6 font-mono text-gray-100 font-semibold">${displayAmt}</td>
+                        <tr class="hover:bg-gray-800/40 border-b border-gray-800 print:border-black">
+                            <td class="p-2 border border-gray-700 text-center text-gray-400 font-mono print:text-black">${activeRepCount}</td>
+                            <td class="p-2 border border-gray-700 text-gray-300 font-medium pl-4 print:text-black">${repName}</td>
+                            <td class="p-2 border border-gray-700 text-right pr-6 font-mono text-gray-100 font-semibold print:text-black">${displayAmt}</td>
                         </tr>
                     `;
                     activeRepCount++;
                 });
 
                 if (activeRepCount > 1) {
-                    // Manager Header Row
                     const managerHeaderRow = document.createElement('tr');
-                    managerHeaderRow.className = "bg-gray-950 border border-gray-700 font-bold";
-                    managerHeaderRow.innerHTML = `
-                        <td colspan="3" class="p-2 text-cyan-400 uppercase tracking-wide text-[11px] border border-gray-700 bg-gray-900/40">${managerName}</td>
-                    `;
+                    managerHeaderRow.className = "bg-gray-950 border border-gray-700 font-bold print:bg-gray-200 print:border-black";
+                    managerHeaderRow.innerHTML = `<td colspan="3" class="p-2 text-cyan-400 uppercase tracking-wide text-[11px] border border-gray-700 bg-gray-900/40 print:text-black">${managerName}</td>`;
                     summaryBody.appendChild(managerHeaderRow);
 
-                    // Inject Rep Rows
                     summaryBody.insertAdjacentHTML('beforeend', repRowsHTML);
 
-                    // Manager Sub-Total Row
                     const managerTotalRow = document.createElement('tr');
-                    managerTotalRow.className = "bg-gray-900/60 font-bold text-xs border border-gray-700";
+                    managerTotalRow.className = "bg-gray-900/60 font-bold text-xs border border-gray-700 print:bg-gray-50 print:border-black";
                     managerTotalRow.innerHTML = `
-                        <td colspan="2" class="p-2 border border-gray-700 text-right text-gray-400 uppercase tracking-wider pr-4">Total</td>
-                        <td class="p-2 border border-gray-700 text-right pr-6 font-mono text-cyan-400 font-bold underline decoration-double">
+                        <td colspan="2" class="p-2 border border-gray-700 text-right text-gray-400 uppercase tracking-wider pr-4 print:text-black">Sub Total</td>
+                        <td class="p-2 border border-gray-700 text-right pr-6 font-mono text-cyan-400 font-bold underline decoration-double print:text-black">
                             ${managerSubTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                         </td>
                     `;
@@ -905,10 +939,10 @@
 
             // Grand Total Row
             const grandTotalRow = document.createElement('tr');
-            grandTotalRow.className = "bg-cyan-950/40 border-2 border-cyan-500 font-bold text-sm text-white shadow-md";
+            grandTotalRow.className = "bg-cyan-950/40 border-2 border-cyan-500 font-bold text-sm text-white shadow-md print:bg-gray-300 print:border-black";
             grandTotalRow.innerHTML = `
-                <td colspan="2" class="p-3 border border-gray-700 text-left uppercase tracking-wider text-cyan-400 font-black"><i class="fa-solid fa-calculator"></i> TOTAL RETURN CHQ AMOUNT</td>
-                <td class="p-3 border border-gray-700 text-right pr-6 font-mono text-xl font-black text-emerald-400">
+                <td colspan="2" class="p-3 border border-gray-700 text-left uppercase tracking-wider text-cyan-400 font-black print:text-black"><i class="fa-solid fa-calculator"></i> TOTAL RETURN CHQ AMOUNT</td>
+                <td class="p-3 border border-gray-700 text-right pr-6 font-mono text-xl font-black text-emerald-400 print:text-black">
                     රු. ${grandTotalReturnAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                 </td>
             `;
@@ -916,7 +950,12 @@
         }
 
         document.getElementById('logoutBtn').addEventListener('click', () => { currentSession = null; document.getElementById('dashboardSection').classList.add('hidden'); document.getElementById('loginSection').classList.remove('hidden'); tabMasterBtn.classList.add('hidden'); });
-        function triggerPrintPreview() { const today = new Date(); document.getElementById('printDateSpan').innerText = today.toLocaleDateString() + ' ' + today.toLocaleTimeString(); window.print(); }
+        
+        function triggerPrintPreview() { 
+            const today = new Date(); 
+            document.getElementById('printDateSpan').innerText = today.toLocaleDateString() + ' ' + today.toLocaleTimeString(); 
+            window.print(); 
+        }
     </script>
 </body>
 </html>
