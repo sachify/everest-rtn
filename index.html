@@ -303,13 +303,43 @@
         </main>
     </div>
 
+    <!-- 🌟 RESCHEDULE DATE MODAL POP-UP -->
+    <div id="rescheduleModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="card w-full max-w-sm p-5 rounded-xl space-y-4 border border-amber-800/60 shadow-2xl">
+            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days"></i> Reschedule Cheque Date
+            </h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1">දැනට පවතින දිනය (Current Date)</label>
+                    <input type="text" id="reschCurrentDateDisplay" class="w-full p-2 rounded bg-gray-900 text-gray-400 border-gray-800" readonly>
+                </div>
+                <div>
+                    <label class="block text-amber-400 font-bold mb-1">අලුත් දිනය (New Banking Date)</label>
+                    <input type="date" id="reschNewDateInput" class="w-full p-2 rounded border-amber-800 text-white font-medium" required>
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">වෙනස් කිරීමට හේතුව (Reason / Remarks)</label>
+                    <input type="text" id="reschReasonInput" class="w-full p-2 rounded" placeholder="e.g. Customer requested extension" required>
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeRescheduleModal()" class="flex-1 bg-gray-800 text-gray-300 py-2 rounded-lg text-xs font-semibold">Cancel</button>
+                <button type="button" onclick="submitRescheduleDate()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-lg text-xs font-semibold">Save New Date</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // ⚠️ ඔයාගේ අලුත්ම Web App URL එක මෙතනට පේස්ට් කරන්න
-        const API_URL = "https://script.google.com/macros/s/AKfycbyyMezIYwaKF4no6jeHvpthszLFDs-b-TZg80PcxkJs_og4YvwHfSxCdTqdiGa3hTK5/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxaE_n25YQFMD7VK1OL3LsXU0b9slkU9laKYAc4AuIMCw0LEU9qNRVeUnaTlVOugg83/exec";
         let currentSession = null;
         let globalCheques = [];
         let globalMasters = [];
         let globalCustomers = [];
+
+        // Active Reschedule Target State
+        let activeRescheduleChqId = null;
+        let activeReschedulePayIndex = null;
 
         const tabNewBtn = document.getElementById('tabNewBtn');
         const tabPayBtn = document.getElementById('tabPayBtn');
@@ -409,7 +439,7 @@
             const pendingCheques = globalCheques.filter(c => String(c.customer) === String(customerValue) && c.balance > 0);
 
             if(pendingCheques.length === 0) {
-                listBody.innerHTML = `<div class="text-gray-500 text-[11px] py-1">हिඟ චෙක්පත් කිසිවක් නැත.</div>`;
+                listBody.innerHTML = `<div class="text-gray-500 text-[11px] py-1">හිඟ චෙක්පත් කිසිවක් නැත.</div>`;
                 container.classList.remove('hidden');
                 updateRemainingCalculation();
                 return;
@@ -641,7 +671,8 @@
                     targetChq.history.push({
                         date: document.getElementById('payDate').value, method: document.getElementById('payMethod').value,
                         ref: document.getElementById('payRef').value, amount: alloc.amount, remarks: "Active",
-                        rep_chq_date: document.getElementById('repChqDateInput').value || ""
+                        rep_chq_date: document.getElementById('repChqDateInput').value || "",
+                        original_rep_chq_date: document.getElementById('repChqDateInput').value || ""
                     });
                 }
             });
@@ -722,6 +753,57 @@
             }
         }
 
+        // 🌟 RESCHEDULE MODAL FUNCTIONS
+        function openRescheduleModal(chqId, payIndex, currentDate) {
+            activeRescheduleChqId = chqId;
+            activeReschedulePayIndex = payIndex;
+            document.getElementById('reschCurrentDateDisplay').value = currentDate || "Not Set";
+            document.getElementById('reschNewDateInput').value = currentDate || "";
+            document.getElementById('reschReasonInput').value = "";
+            document.getElementById('rescheduleModal').classList.remove('hidden');
+        }
+
+        function closeRescheduleModal() {
+            document.getElementById('rescheduleModal').classList.add('hidden');
+            activeRescheduleChqId = null;
+            activeReschedulePayIndex = null;
+        }
+
+        async function submitRescheduleDate() {
+            const newDate = document.getElementById('reschNewDateInput').value;
+            const reason = document.getElementById('reschReasonInput').value.trim();
+            if(!newDate) { alert("කරුණාකර අලුත් දිනය තෝරන්න!"); return; }
+
+            const chqId = activeRescheduleChqId;
+            const payIndex = activeReschedulePayIndex;
+            closeRescheduleModal();
+
+            // Optimistic UI Update
+            const targetChq = globalCheques.find(c => String(c.id) === String(chqId));
+            if(targetChq && targetChq.history && targetChq.history[payIndex]) {
+                if(!targetChq.history[payIndex].original_rep_chq_date) {
+                    targetChq.history[payIndex].original_rep_chq_date = targetChq.history[payIndex].rep_chq_date;
+                }
+                targetChq.history[payIndex].rep_chq_date = newDate;
+                if(!reportsInterfaceBlock.classList.contains('hidden')) { calculateAndRenderLedgerReport(); }
+            }
+
+            try {
+                await fetch(API_URL, { method: "POST", body: JSON.stringify({
+                    action: "reschedule_payment",
+                    cheque_id: chqId,
+                    payment_index: payIndex,
+                    new_date: newDate,
+                    reason: reason,
+                    user: currentSession.username
+                })});
+                fetchDataEngine();
+            } catch(err) {
+                alert("දිනය වෙනස් කිරීමේදී දෝෂයක් සිදු විය.");
+                fetchDataEngine();
+            }
+        }
+
         function calculateAndRenderLedgerReport() {
             const tableBody = document.getElementById('ledgerReportTableBody'); tableBody.innerHTML = "";
             const filterValue = document.getElementById('reportRepFilter').value;
@@ -774,9 +856,23 @@
                     const isBounced = firstPay.remarks && firstPay.remarks.includes("BOUNCED");
                     if(isBounced) tr.classList.add('bounced-line');
                     let bounceBtn = (firstPay.method === 'Cheque' && !isBounced) ? 
-                        `<button onclick="markPaymentAsBounced('${c.id}', 0)" class="no-print ml-1 text-red-500 hover:text-red-400"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
+                        `<button onclick="markPaymentAsBounced('${c.id}', 0)" class="no-print ml-1 text-red-500 hover:text-red-400" title="Mark Bounced"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
 
-                    let chqDateStr = (firstPay.method === 'Cheque' && firstPay.rep_chq_date) ? `<br><span class="text-amber-400 font-bold text-[9px]">Chq Date: ${firstPay.rep_chq_date.split('T')[0]}</span>` : '';
+                    // 🌟 Reschedule UI Helper logic
+                    let chqDateStr = '';
+                    if(firstPay.method === 'Cheque' && firstPay.rep_chq_date) {
+                        const curDateClean = firstPay.rep_chq_date.split('T')[0];
+                        const origDateClean = (firstPay.original_rep_chq_date) ? firstPay.original_rep_chq_date.split('T')[0] : curDateClean;
+                        const isRescheduled = origDateClean && origDateClean !== curDateClean;
+                        
+                        let dateDisplay = `Chq Date: ${curDateClean}`;
+                        if(isRescheduled) {
+                            dateDisplay = `Chq Date: <span class="text-emerald-400 font-bold">${curDateClean}</span> <span class="text-gray-500 line-through text-[8px]">(${origDateClean})</span>`;
+                        }
+
+                        let reschBtn = (!isBounced) ? `<button onclick="openRescheduleModal('${c.id}', 0, '${curDateClean}')" class="no-print ml-1 text-amber-400 hover:text-amber-300" title="Reschedule Date"><i class="fa-solid fa-calendar-pen"></i></button>` : '';
+                        chqDateStr = `<br><span class="text-amber-400 font-bold text-[9px]">${dateDisplay} ${reschBtn}</span>`;
+                    }
 
                     htmlContent += `
                         <td class="text-center font-mono text-gray-400">${firstPay.date ? firstPay.date.split('T')[0] : ''}</td>
@@ -794,9 +890,22 @@
                         const subTr = document.createElement('tr'); subTr.className = "sub-row hover:bg-gray-800/20";
                         if(subIsBounced) subTr.classList.add('bounced-line');
                         let subBounceBtn = (pay.method === 'Cheque' && !subIsBounced) ? 
-                            `<button onclick="markPaymentAsBounced('${c.id}', ${i})" class="no-print ml-1 text-red-500 hover:text-red-400"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
+                            `<button onclick="markPaymentAsBounced('${c.id}', ${i})" class="no-print ml-1 text-red-500 hover:text-red-400" title="Mark Bounced"><i class="fa-solid fa-triangle-exclamation"></i></button>` : '';
 
-                        let subChqDateStr = (pay.method === 'Cheque' && pay.rep_chq_date) ? `<br><span class="text-amber-400 font-bold text-[9px]">Chq Date: ${pay.rep_chq_date.split('T')[0]}</span>` : '';
+                        let subChqDateStr = '';
+                        if(pay.method === 'Cheque' && pay.rep_chq_date) {
+                            const subCurDateClean = pay.rep_chq_date.split('T')[0];
+                            const subOrigDateClean = (pay.original_rep_chq_date) ? pay.original_rep_chq_date.split('T')[0] : subCurDateClean;
+                            const subIsRescheduled = subOrigDateClean && subOrigDateClean !== subCurDateClean;
+                            
+                            let subDateDisplay = `Chq Date: ${subCurDateClean}`;
+                            if(subIsRescheduled) {
+                                subDateDisplay = `Chq Date: <span class="text-emerald-400 font-bold">${subCurDateClean}</span> <span class="text-gray-500 line-through text-[8px]">(${subOrigDateClean})</span>`;
+                            }
+
+                            let subReschBtn = (!subIsBounced) ? `<button onclick="openRescheduleModal('${c.id}', ${i}, '${subCurDateClean}')" class="no-print ml-1 text-amber-400 hover:text-amber-300" title="Reschedule Date"><i class="fa-solid fa-calendar-pen"></i></button>` : '';
+                            subChqDateStr = `<br><span class="text-amber-400 font-bold text-[9px]">${subDateDisplay} ${subReschBtn}</span>`;
+                        }
 
                         subTr.innerHTML = `
                             <td class="text-center font-mono text-gray-400">${pay.date ? pay.date.split('T')[0] : ''}</td>
